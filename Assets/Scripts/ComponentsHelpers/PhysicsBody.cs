@@ -8,12 +8,20 @@ namespace Scripts
 	{
 		private static PhysicsEngine Engine { get { return GameObject.FindWithTag("PhysicsEngine").GetComponent<PhysicsEngine>(); } }
 
+		public bool IsDynamic;
+		public bool IsFixedRotation;
+
 		protected PhysicsWorld World { get; private set; }
 		public Body Body { get; protected set; }
 
 		public virtual void Start()
 		{
 			World = Engine.PhysicsWorld;
+
+			Body = World.CreateBody(new Vector2(transform.position.x, transform.position.y));
+			Body.Rotation = transform.rotation.eulerAngles.z * Mathf.Deg2Rad;
+			Body.BodyType = IsDynamic ? BodyType.Dynamic : BodyType.Static;
+			Body.FixedRotation = IsFixedRotation;
 		}
 
 		public virtual void Update()
