@@ -24,6 +24,7 @@ namespace Scripts
 			}
 
 			transform.position = new Vector3(Body.Position.X, Body.Position.Y, 0f);
+			transform.rotation = Quaternion.AngleAxis(Body.Rotation * Mathf.Rad2Deg, Vector3.forward);
 		}
 	}
 }

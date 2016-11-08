@@ -20,7 +20,8 @@ namespace Scripts
 			var point = camera.WorldToViewportPoint(FollowingObject.transform.position);
 			var delta = FollowingObject.transform.position - camera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, point.z));
 			var destination = transform.position + delta;
-			transform.position = Vector3.SmoothDamp(transform.position, destination, ref velocity, DampTime);
+			//transform.position = Vector3.SmoothDamp(transform.position, destination, ref velocity, DampTime);
+			transform.position = destination;
 		}
 	}
 }
