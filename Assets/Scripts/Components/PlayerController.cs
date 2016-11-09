@@ -9,30 +9,30 @@ namespace Scripts
 		private const float MaxHorizontalSpeed = 10f;
 		private const float MaxVerticalSpeed = 10f;
 
-		private PhysicsBody physicsBody;
+		private PhysicsPlayer physicsPlayer;
 		private Animator animator;
 		private bool isFacingRight = true;
 
 		public void Start()
 		{
-			physicsBody = GetComponent<PhysicsBody>();
+			physicsPlayer = GetComponent<PhysicsPlayer>();
 			animator = GetComponent<Animator>();
 		}
 
 		public void Update()
 		{
-			if (physicsBody == null || physicsBody.Body == null) {
+			if (physicsPlayer == null || physicsPlayer.Body == null) {
 				Debug.LogWarningFormat("Object \"{0}\" hasn't physics body!", name);
 				return;
 			}
 
 			var velocityX = Input.GetAxis("Horizontal") * MaxHorizontalSpeed;
-			var velocityY = Input.GetAxis("Vertical") * MaxVerticalSpeed;
-			if (velocityY <= Mathf.Epsilon) {
-				velocityY = physicsBody.Body.LinearVelocity.Y;
+			var velocityY = physicsPlayer.Body.LinearVelocity.Y;
+			if (physicsPlayer.IsGrounded && (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))) {
+				velocityY = MaxVerticalSpeed;
 			}
 
-			physicsBody.Body.LinearVelocity = new Vec2(velocityX, velocityY);
+			physicsPlayer.Body.LinearVelocity = new Vec2(velocityX, velocityY);
 			if ((velocityX > 0 && !isFacingRight) || (velocityX < 0 && isFacingRight)) {
 				Flip();
 			}
@@ -40,6 +40,7 @@ namespace Scripts
 			if (animator != null) {
 				animator.SetFloat("VelocityX", velocityX);
 				animator.SetFloat("VelocityY", velocityY);
+				animator.SetBool("IsGrounded", physicsPlayer.IsGrounded);
 			}
 		}
 

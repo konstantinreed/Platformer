@@ -1,4 +1,5 @@
 ﻿using FarseerPhysics.Dynamics;
+using FarseerPhysics.Dynamics.Contacts;
 using UnityEngine;
 
 namespace Scripts.Physics
@@ -16,6 +17,8 @@ namespace Scripts.Physics
 		public PhysicsWorld()
 		{
 			world = new World(gravityForce);
+			world.ContactManager.BeginContact += BeginContact;
+			world.ContactManager.EndContact += EndContact;
 		}
 
 		public Body CreateBody(Vector2 position)
@@ -30,6 +33,36 @@ namespace Scripts.Physics
 			while (remainDeltaTime >= SimulationStep) {
 				world.Step(SimulationStep);
 				remainDeltaTime -= SimulationStep;
+			}
+		}
+
+		private static bool BeginContact(Contact contact)
+		{
+			var result = true;
+
+			var userDataA = contact.FixtureA.UserData as PhysicsBodyData;
+			if (userDataA != null && userDataA.BeginContact != null) {
+				result = userDataA.BeginContact(contact, PhysicsContactSide.A);
+			}
+
+			var userDataB = contact.FixtureB.UserData as PhysicsBodyData;
+			if (userDataB != null && userDataB.BeginContact != null) {
+				result = result && userDataB.BeginContact(contact, PhysicsContactSide.B);
+			}
+
+			return result;
+		}
+
+		private static void EndContact(Contact contact)
+		{
+			var userDataA = contact.FixtureA.UserData as PhysicsBodyData;
+			if (userDataA != null && userDataA.EndContact != null) {
+				userDataA.EndContact(contact, PhysicsContactSide.A);
+			}
+
+			var userDataB = contact.FixtureB.UserData as PhysicsBodyData;
+			if (userDataB != null && userDataB.EndContact != null) {
+				userDataB.EndContact(contact, PhysicsContactSide.B);
 			}
 		}
 	}

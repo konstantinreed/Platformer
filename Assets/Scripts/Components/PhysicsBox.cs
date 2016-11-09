@@ -1,5 +1,6 @@
 ﻿using FarseerPhysics.Collision.Shapes;
 using FarseerPhysics.Common;
+using Scripts.Physics;
 
 namespace Scripts
 {
@@ -7,6 +8,7 @@ namespace Scripts
 
 	public class PhysicsBox : PhysicsBody
 	{
+		public bool IsGround;
 		public float HalfWidth = 0.5f;
 		public float HalfHeight = 0.5f;
 
@@ -14,7 +16,7 @@ namespace Scripts
 		{
 			base.Start();
 
-			var shape = new PolygonShape(1f) {
+			var bodyShape = new PolygonShape(1f) {
 				Vertices = new Vertices(new[] {
 					new Vec2(-HalfWidth, -HalfHeight),
 					new Vec2(HalfWidth, -HalfHeight),
@@ -22,7 +24,10 @@ namespace Scripts
 					new Vec2(-HalfWidth, HalfHeight),
 				})
 			};
-			Body.CreateFixture(shape);
+			var bodyFixture = Body.CreateFixture(bodyShape);
+			bodyFixture.UserData = new PhysicsBodyData() {
+				IsGround = IsGround
+			};
 		}
 	}
 }
