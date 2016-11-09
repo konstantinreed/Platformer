@@ -25,8 +25,6 @@ namespace Scripts
 		{
 			base.Start();
 
-			Body.Mass = 60f;
-
 			var bodyPosition = new Vec2(BodyPosition.x, BodyPosition.y);
 			var bodyHalf = new Vec2(BodySize.x, BodySize.y) * 0.5f;
 			var bodyShape = new PolygonShape(1f) {

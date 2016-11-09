@@ -7,12 +7,29 @@ namespace Scripts
 	public abstract class PhysicsBody : MonoBehaviour
 	{
 		private static PhysicsEngine Engine { get { return GameObject.FindWithTag("PhysicsEngine").GetComponent<PhysicsEngine>(); } }
+		
+		private float gravityScaleStandart;
+		private float gravityScaleMultiplier;
 
 		public bool IsDynamic;
 		public bool IsFixedRotation;
+		public float Mass = 20f;
+		public float GravityScale = 1f;
+		public float Friction = 0.2f;
+		public float Restitution = 0f;
 
 		protected PhysicsWorld World { get; private set; }
 		public Body Body { get; protected set; }
+
+		public float GravityScaleMultiplier
+		{
+			get { return gravityScaleMultiplier; }
+			set
+			{
+				Body.GravityScale = gravityScaleStandart * gravityScaleMultiplier;
+				gravityScaleMultiplier = value;
+			}
+		}
 
 		public virtual void Start()
 		{
@@ -22,6 +39,12 @@ namespace Scripts
 			Body.Rotation = transform.rotation.eulerAngles.z * Mathf.Deg2Rad;
 			Body.BodyType = IsDynamic ? BodyType.Dynamic : BodyType.Static;
 			Body.FixedRotation = IsFixedRotation;
+			Body.Mass = Mass;
+			Body.GravityScale = GravityScale;
+			Body.Friction = Friction;
+			Body.Restitution = Restitution;
+
+			gravityScaleStandart = Body.GravityScale;
 		}
 
 		public virtual void Update()
@@ -32,7 +55,9 @@ namespace Scripts
 			}
 
 			transform.position = new Vector3(Body.Position.X, Body.Position.Y, 0f);
-			transform.rotation = Quaternion.AngleAxis(Body.Rotation * Mathf.Rad2Deg, Vector3.forward);
+			if (!IsFixedRotation) {
+				transform.rotation = Quaternion.AngleAxis(Body.Rotation * Mathf.Rad2Deg, Vector3.forward);
+			}
 		}
 	}
 }

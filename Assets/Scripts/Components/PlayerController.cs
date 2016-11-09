@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Scripts
 {
@@ -6,13 +7,16 @@ namespace Scripts
 
 	public class PlayerController : MonoBehaviour
 	{
-		private const float MaxHorizontalSpeed = 10f;
-		private const float MaxVerticalSpeed = 10f;
+		private static readonly TimeSpan noGravityScaleTimeAfterJump = TimeSpan.FromSeconds(0.1d);
 
 		private PhysicsPlayer physicsPlayer;
 		private Animator animator;
 		private bool isFacingRight = true;
+		private DateTime jumpedTime = DateTime.Now - noGravityScaleTimeAfterJump;
 
+		public float MaxHorizontalSpeed = 10f;
+		public float MaxVerticalSpeed = 10f;
+		public float GravityScaleMultiplierGrounded = 1f;
 		public GameObject AnimatorGameObject;
 
 		public void Start()
@@ -28,16 +32,24 @@ namespace Scripts
 				return;
 			}
 
+			var isJumping = physicsPlayer.IsGrounded && (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W));
 			var velocityX = Input.GetAxis("Horizontal") * MaxHorizontalSpeed;
 			var velocityY = physicsPlayer.Body.LinearVelocity.Y;
-			if (physicsPlayer.IsGrounded && (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))) {
+			if (isJumping) {
 				velocityY = MaxVerticalSpeed;
+				jumpedTime = DateTime.Now;
 			}
 
 			physicsPlayer.Body.LinearVelocity = new Vec2(velocityX, velocityY);
 			if ((velocityX > 0 && !isFacingRight) || (velocityX < 0 && isFacingRight)) {
 				Flip();
 			}
+
+			var requiredGravityMultiplier =
+				!isJumping &&
+				physicsPlayer.IsGrounded &&
+				(DateTime.Now - jumpedTime >= noGravityScaleTimeAfterJump);
+			physicsPlayer.GravityScaleMultiplier = requiredGravityMultiplier ? GravityScaleMultiplierGrounded : 1f;
 
 			if (animator != null) {
 				animator.SetFloat("VelocityX", Mathf.Abs(velocityX));
