@@ -13,10 +13,12 @@ namespace Scripts
 		private Animator animator;
 		private bool isFacingRight = true;
 
+		public GameObject AnimatorGameObject;
+
 		public void Start()
 		{
 			physicsPlayer = GetComponent<PhysicsPlayer>();
-			animator = GetComponent<Animator>();
+			animator = AnimatorGameObject != null ? AnimatorGameObject.GetComponent<Animator>() : null;
 		}
 
 		public void Update()
@@ -38,8 +40,8 @@ namespace Scripts
 			}
 
 			if (animator != null) {
-				animator.SetFloat("VelocityX", velocityX);
-				animator.SetFloat("VelocityY", velocityY);
+				animator.SetFloat("VelocityX", Mathf.Abs(velocityX));
+				animator.SetFloat("VelocityY", Mathf.Abs(velocityY));
 				animator.SetBool("IsGrounded", physicsPlayer.IsGrounded);
 			}
 		}
