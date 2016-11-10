@@ -1006,6 +1006,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxHorizontalSpeed: 10
+  MinVerticalSpeed: -30
   MaxVerticalSpeed: 21
   GravityScaleMultiplierGrounded: 2.2
   AnimatorGameObject: {fileID: 1523798205}

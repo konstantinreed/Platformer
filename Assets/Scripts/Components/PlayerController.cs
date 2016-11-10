@@ -56,6 +56,7 @@ namespace Scripts
 				velocityY = MaxVerticalSpeed;
 				jumpedTime = DateTime.Now;
 			}
+			var velocityYFactor = velocityY / (velocityY >= 0 ? MaxVerticalSpeed : -MinVerticalSpeed);
 			if (!physicsPlayer.IsGrounded && velocityY <= 0) {
 				state = State.Falling;
 			}
@@ -67,6 +68,7 @@ namespace Scripts
 				)
 			) {
 				state = State.Landing;
+				landingTime = DateTime.Now;
 			}
 			var isOnGround = state == State.Idle || state == State.Running || state == State.Landing;
 
@@ -91,7 +93,7 @@ namespace Scripts
 
 			if (animator != null) {
 				animator.SetFloat("VelocityX", velocityXFactor);
-				animator.SetFloat("VelocityY", velocityY / (velocityY >= 0 ? MaxVerticalSpeed : MinVerticalSpeed));
+				animator.SetFloat("VelocityY", velocityYFactor);
 				animator.SetBool("IsGroundSensorActive", isOnGround);
 				animator.SetBool("IsJumping", state == State.Jumping);
 				animator.SetBool("IsFalling", state == State.Falling);
