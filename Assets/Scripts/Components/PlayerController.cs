@@ -53,8 +53,8 @@ namespace Scripts
 
 			if (animator != null) {
 				animator.SetFloat("VelocityX", Mathf.Abs(velocityX));
-				animator.SetFloat("VelocityY", Mathf.Abs(velocityY));
-				animator.SetBool("IsGrounded", physicsPlayer.IsGrounded);
+				animator.SetFloat("VelocityY", velocityY);
+				animator.SetBool("IsGrounded", requiredGravityMultiplier);
 			}
 		}
 
