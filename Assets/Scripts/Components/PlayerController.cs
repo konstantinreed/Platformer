@@ -17,12 +17,14 @@ namespace Scripts
 		}
 
 		private static readonly TimeSpan noGravityScaleTimeAfterJump = TimeSpan.FromSeconds(0.1d);
+		private static readonly TimeSpan landingDuration = TimeSpan.FromSeconds(0.25d);
 
 		private PhysicsPlayer physicsPlayer;
 		private Animator animator;
 		private State state = State.Idle;
 		private bool isFacingRight = true;
 		private DateTime jumpedTime = DateTime.Now - noGravityScaleTimeAfterJump;
+		private DateTime landingTime = DateTime.Now - landingDuration;
 
 		public float MaxHorizontalSpeed = 10f;
 		public float MinVerticalSpeed = -30f;
@@ -70,6 +72,15 @@ namespace Scripts
 
 			// Horizontal velocity
 			velocityX = Input.GetAxis("Horizontal") * MaxHorizontalSpeed;
+			var velocityXFactor = Mathf.Abs(velocityX) / MaxHorizontalSpeed;
+			if (state == State.Landing) {
+				if (velocityXFactor > 0.01f) {
+					state = State.Running;
+				} else if (DateTime.Now - landingTime >= landingDuration) {
+					state = State.Idle;
+				}
+				
+			}
 
 			// Apply physics
 			physicsPlayer.Body.LinearVelocity = new Vec2(velocityX, velocityY);
@@ -79,7 +90,7 @@ namespace Scripts
 			physicsPlayer.GravityScaleMultiplier = isOnGround ? GravityScaleMultiplierGrounded : 1f;
 
 			if (animator != null) {
-				animator.SetFloat("VelocityX", Mathf.Abs(velocityX) / MaxHorizontalSpeed);
+				animator.SetFloat("VelocityX", velocityXFactor);
 				animator.SetFloat("VelocityY", velocityY / (velocityY >= 0 ? MaxVerticalSpeed : MinVerticalSpeed));
 				animator.SetBool("IsGroundSensorActive", isOnGround);
 				animator.SetBool("IsJumping", state == State.Jumping);
