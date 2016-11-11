@@ -91,6 +91,7 @@ ModelImporter:
     7400006: Fall
     7400008: LandingIdle
     7400010: LandingRun
+    7400012: StopRun
     9500000: //RootNode
     13700000: Cube_1
     13700002: Cube_2
@@ -327,7 +328,7 @@ ModelImporter:
       name: Jump
       takeName: Main
       firstFrame: 180
-      lastFrame: 193
+      lastFrame: 190
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -633,7 +634,7 @@ ModelImporter:
       name: LandingRun
       takeName: Main
       firstFrame: 290
-      lastFrame: 305
+      lastFrame: 300
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -677,6 +678,108 @@ ModelImporter:
       - path: Null_1/shoulder_L_Pole
         weight: 1
       - path: Null_1/shoulder_R_Pole
+        weight: 1
+      - path: Null_2
+        weight: 1
+      - path: Null_2/Cube
+        weight: 1
+      - path: Null_2/Cube/Cube_1
+        weight: 1
+      - path: Null_2/Cube/Cube_2
+        weight: 1
+      - path: Null_2/Cube/Cube_3
+        weight: 1
+      - path: Null_2/Cube/Cube_4
+        weight: 1
+      - path: Null_2/Cube/Cube_7
+        weight: 1
+      - path: Null_2/Cube/Cube_8
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/pelvis
+        weight: 1
+      - path: Root/pelvis/collarbone
+        weight: 1
+      - path: Root/pelvis/collarbone/neck
+        weight: 1
+      - path: Root/pelvis/collarbone/neck/head_end
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_L
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_L/elbow_L
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_L/elbow_L/arm_end_2
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_R
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_R/elbow_R
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_R/elbow_R/arm_end
+        weight: 1
+      - path: Root/pelvis/leg_L_2
+        weight: 1
+      - path: Root/pelvis/leg_L_2/knee_L
+        weight: 1
+      - path: Root/pelvis/leg_L_2/knee_L/feet_end_2
+        weight: 1
+      - path: Root/pelvis/leg_R_2
+        weight: 1
+      - path: Root/pelvis/leg_R_2/knee_R
+        weight: 1
+      - path: Root/pelvis/leg_R_2/knee_R/feet_end
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: StopRun
+      takeName: Main
+      firstFrame: 350
+      lastFrame: 353
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Null_1
+        weight: 1
+      - path: Null_1/arm_L
+        weight: 1
+      - path: Null_1/arm_L/shoulder_L_Pole
+        weight: 1
+      - path: Null_1/arm_R
+        weight: 1
+      - path: Null_1/arm_R/shoulder_R_Pole
+        weight: 1
+      - path: Null_1/leg_L
+        weight: 1
+      - path: Null_1/leg_L_Pole
+        weight: 1
+      - path: Null_1/leg_R
+        weight: 1
+      - path: Null_1/leg_R_Pole
+        weight: 1
+      - path: Null_1/pelvis_ctrl
+        weight: 1
+      - path: Null_1/pelvis_ctrl/had_ctrl
         weight: 1
       - path: Null_2
         weight: 1
