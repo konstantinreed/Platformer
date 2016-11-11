@@ -25,6 +25,8 @@ namespace Scripts
 		private bool isFacingRight = true;
 		private DateTime jumpedTime = DateTime.Now - noGravityScaleTimeAfterJump;
 		private DateTime landingTime = DateTime.Now - landingDuration;
+		private float lastLandingVelocityYFactor;
+		private float landingVelocityYFactor;
 
 		public float MaxHorizontalSpeed = 10f;
 		public float MinVerticalSpeed = -30f;
@@ -69,6 +71,7 @@ namespace Scripts
 			) {
 				state = State.Landing;
 				landingTime = DateTime.Now;
+				landingVelocityYFactor = lastLandingVelocityYFactor;
 			}
 			var isOnGround = state == State.Idle || state == State.Running || state == State.Landing;
 
@@ -89,10 +92,16 @@ namespace Scripts
 			if (animator != null) {
 				animator.SetFloat("VelocityX", velocityXFactor);
 				animator.SetFloat("VelocityY", velocityYFactor);
+				animator.SetFloat("LandingVelocityYFactor", landingVelocityYFactor);
 				animator.SetBool("IsGroundSensorActive", isOnGround);
 				animator.SetBool("IsJumping", state == State.Jumping);
 				animator.SetBool("IsFalling", state == State.Falling);
 				animator.SetBool("IsLanding", state == State.Landing);
+			}
+
+			//
+			if (velocityYFactor <= -0.01f) {
+				lastLandingVelocityYFactor = velocityYFactor;
 			}
 		}
 
