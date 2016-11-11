@@ -16,7 +16,7 @@ namespace Scripts
 			Landing
 		}
 
-		private static readonly TimeSpan noGravityScaleTimeAfterJump = TimeSpan.FromSeconds(0.1d);
+		private static readonly TimeSpan noGravityScaleTimeAfterJump = TimeSpan.FromSeconds(0.2d);
 		private static readonly TimeSpan landingDuration = TimeSpan.FromSeconds(0.25d);
 
 		private PhysicsPlayer physicsPlayer;
@@ -75,13 +75,8 @@ namespace Scripts
 			// Horizontal velocity
 			velocityX = Input.GetAxis("Horizontal") * MaxHorizontalSpeed;
 			var velocityXFactor = Mathf.Abs(velocityX) / MaxHorizontalSpeed;
-			if (state == State.Landing) {
-				if (velocityXFactor > 0.01f) {
-					state = State.Running;
-				} else if (DateTime.Now - landingTime >= landingDuration) {
-					state = State.Idle;
-				}
-				
+			if (state == State.Landing && DateTime.Now - landingTime >= landingDuration) {
+				state = velocityXFactor > 0.01f ? State.Running : State.Idle;
 			}
 
 			// Apply physics
