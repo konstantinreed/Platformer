@@ -5,7 +5,7 @@ namespace Scripts
 	public class CameraController : MonoBehaviour
 	{
 		private new Camera camera;
-		private Vector3 velocity = Vector3.zero;
+		//private Vector3 velocity = Vector3.zero;
 		
 		public GameObject FollowingObject;
 		public float DampTime = 0.15f;
