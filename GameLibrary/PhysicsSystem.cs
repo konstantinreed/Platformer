@@ -2,7 +2,7 @@
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 
-namespace Scripts
+namespace GameLibrary
 {
 	public class PhysicsSystem
 	{
@@ -12,7 +12,7 @@ namespace Scripts
 		private float remainDeltaTime;
 
 		public World World { get; private set; }
-		public readonly List<PhysicsObject> Objects = new List<PhysicsObject>();
+		public readonly List<PhysicsBody> Objects = new List<PhysicsBody>();
 
 		public PhysicsSystem()
 		{

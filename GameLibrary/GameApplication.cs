@@ -1,12 +1,16 @@
-﻿namespace Scripts
+﻿namespace GameLibrary
 {
-	public class Application
+	public class GameApplication
 	{
 		public PhysicsSystem PhysicsSystem { get; private set; }
+		public Level Level { get; private set; }
 
-		public Application()
+		public GameApplication()
 		{
 			PhysicsSystem = new PhysicsSystem();
+
+			Level = new Level(this);
+			Level.Load();
 		}
 
 		public void Update(float delta)

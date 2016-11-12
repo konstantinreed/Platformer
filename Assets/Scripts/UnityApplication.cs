@@ -1,14 +1,15 @@
-﻿using UnityEngine;
+﻿using GameLibrary;
+using UnityEngine;
 
 namespace Scripts
 {
 	public class UnityApplication : MonoBehaviour
 	{
-		public Application Application { get; private set; }
+		public GameApplication Application { get; private set; }
 
 		public void Start()
 		{
-			Application = new Application();
+			Application = new GameApplication();
 		}
 
 		public void Update()
