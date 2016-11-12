@@ -5,7 +5,7 @@ namespace Scripts
 {
 	using Vec2 = Microsoft.Xna.Framework.Vector2;
 
-	public class PlayerController : MonoBehaviour
+	public class OldPlayerController : MonoBehaviour
 	{
 		private enum State
 		{
@@ -19,7 +19,7 @@ namespace Scripts
 		private static readonly TimeSpan noGravityScaleTimeAfterJump = TimeSpan.FromSeconds(0.2d);
 		private static readonly TimeSpan landingDuration = TimeSpan.FromSeconds(0.25d);
 
-		private PhysicsPlayer physicsPlayer;
+		private OldPhysicsPlayer physicsPlayer;
 		private Animator animator;
 		private State state = State.Idle;
 		private bool isFacingRight = true;
@@ -38,7 +38,7 @@ namespace Scripts
 
 		public void Start()
 		{
-			physicsPlayer = GetComponent<PhysicsPlayer>();
+			physicsPlayer = GetComponent<OldPhysicsPlayer>();
 			animator = AnimatorGameObject != null ? AnimatorGameObject.GetComponent<Animator>() : null;
 		}
 

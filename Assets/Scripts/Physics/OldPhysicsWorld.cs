@@ -6,7 +6,7 @@ namespace Scripts.Physics
 {
 	using Vec2 = Microsoft.Xna.Framework.Vector2;
 
-	public class PhysicsWorld
+	public class OldPhysicsWorld
 	{
 		private const float SimulationStep = 0.025f;
 		private readonly Vec2 gravityForce = new Vec2(0f, -9.82f);
@@ -14,7 +14,7 @@ namespace Scripts.Physics
 		private float remainDeltaTime;
 		private readonly World world;
 
-		public PhysicsWorld()
+		public OldPhysicsWorld()
 		{
 			world = new World(gravityForce);
 			world.ContactManager.BeginContact += BeginContact;
@@ -40,14 +40,14 @@ namespace Scripts.Physics
 		{
 			var result = true;
 
-			var userDataA = contact.FixtureA.UserData as PhysicsBodyData;
+			var userDataA = contact.FixtureA.UserData as OldPhysicsBodyData;
 			if (userDataA != null && userDataA.BeginContact != null) {
-				result = userDataA.BeginContact(contact, PhysicsContactSide.A);
+				result = userDataA.BeginContact(contact, OldPhysicsContactSide.A);
 			}
 
-			var userDataB = contact.FixtureB.UserData as PhysicsBodyData;
+			var userDataB = contact.FixtureB.UserData as OldPhysicsBodyData;
 			if (userDataB != null && userDataB.BeginContact != null) {
-				result = result && userDataB.BeginContact(contact, PhysicsContactSide.B);
+				result = result && userDataB.BeginContact(contact, OldPhysicsContactSide.B);
 			}
 
 			return result;
@@ -55,14 +55,14 @@ namespace Scripts.Physics
 
 		private static void EndContact(Contact contact)
 		{
-			var userDataA = contact.FixtureA.UserData as PhysicsBodyData;
+			var userDataA = contact.FixtureA.UserData as OldPhysicsBodyData;
 			if (userDataA != null && userDataA.EndContact != null) {
-				userDataA.EndContact(contact, PhysicsContactSide.A);
+				userDataA.EndContact(contact, OldPhysicsContactSide.A);
 			}
 
-			var userDataB = contact.FixtureB.UserData as PhysicsBodyData;
+			var userDataB = contact.FixtureB.UserData as OldPhysicsBodyData;
 			if (userDataB != null && userDataB.EndContact != null) {
-				userDataB.EndContact(contact, PhysicsContactSide.B);
+				userDataB.EndContact(contact, OldPhysicsContactSide.B);
 			}
 		}
 	}

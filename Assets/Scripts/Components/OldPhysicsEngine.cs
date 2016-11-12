@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace Scripts
 {
-	public class PhysicsEngine : MonoBehaviour
+	public class OldPhysicsEngine : MonoBehaviour
 	{
-		public PhysicsWorld PhysicsWorld { get; private set; }
+		public OldPhysicsWorld PhysicsWorld { get; private set; }
 
 		public void Start ()
 		{
-			PhysicsWorld = new PhysicsWorld();
+			PhysicsWorld = new OldPhysicsWorld();
 		}
 
 		public void Update ()

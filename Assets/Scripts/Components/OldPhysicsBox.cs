@@ -6,7 +6,7 @@ namespace Scripts
 {
 	using Vec2 = Microsoft.Xna.Framework.Vector2;
 
-	public class PhysicsBox : PhysicsBody
+	public class OldPhysicsBox : OldPhysicsBody
 	{
 		public bool IsGround;
 		public float HalfWidth = 0.5f;
@@ -25,7 +25,7 @@ namespace Scripts
 				})
 			};
 			var bodyFixture = Body.CreateFixture(bodyShape);
-			bodyFixture.UserData = new PhysicsBodyData() {
+			bodyFixture.UserData = new OldPhysicsBodyData() {
 				IsGround = IsGround
 			};
 		}

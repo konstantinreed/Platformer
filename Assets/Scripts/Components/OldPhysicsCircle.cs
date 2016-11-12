@@ -2,7 +2,7 @@
 
 namespace Scripts
 {
-	public class PhysicsCircle : PhysicsBody
+	public class OldPhysicsCircle : OldPhysicsBody
 	{
 		public float Radius = 0.5f;
 

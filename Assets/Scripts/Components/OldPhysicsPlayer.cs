@@ -8,7 +8,7 @@ namespace Scripts
 {
 	using Vec2 = Microsoft.Xna.Framework.Vector2;
 
-	public class PhysicsPlayer : PhysicsBody
+	public class OldPhysicsPlayer : OldPhysicsBody
 	{
 		private int groundContactsNum;
 
@@ -54,16 +54,16 @@ namespace Scripts
 			};
 			var groundSensorFixture = Body.CreateFixture(groundSensorShape);
 			groundSensorFixture.IsSensor = true;
-			groundSensorFixture.UserData = new PhysicsBodyData() {
+			groundSensorFixture.UserData = new OldPhysicsBodyData() {
 				BeginContact = BeginContact,
 				EndContact = EndContact
 			};
 		}
 
-		private bool BeginContact(Contact contact, PhysicsContactSide side)
+		private bool BeginContact(Contact contact, OldPhysicsContactSide side)
 		{
-			var fixture = side == PhysicsContactSide.A ? contact.FixtureB : contact.FixtureA;
-			var userData = fixture.UserData as PhysicsBodyData;
+			var fixture = side == OldPhysicsContactSide.A ? contact.FixtureB : contact.FixtureA;
+			var userData = fixture.UserData as OldPhysicsBodyData;
 
 			if (userData != null && userData.IsGround) {
 				groundContactsNum++;
@@ -71,10 +71,10 @@ namespace Scripts
 			return true;
 		}
 
-		private void EndContact(Contact contact, PhysicsContactSide side)
+		private void EndContact(Contact contact, OldPhysicsContactSide side)
 		{
-			var fixture = side == PhysicsContactSide.A ? contact.FixtureB : contact.FixtureA;
-			var userData = fixture.UserData as PhysicsBodyData;
+			var fixture = side == OldPhysicsContactSide.A ? contact.FixtureB : contact.FixtureA;
+			var userData = fixture.UserData as OldPhysicsBodyData;
 
 			if (userData != null && userData.IsGround) {
 				groundContactsNum--;

@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Scripts
 {
-	public abstract class PhysicsBody : MonoBehaviour
+	public abstract class OldPhysicsBody : MonoBehaviour
 	{
-		private static PhysicsEngine Engine { get { return GameObject.FindWithTag("PhysicsEngine").GetComponent<PhysicsEngine>(); } }
+		private static OldPhysicsEngine Engine { get { return GameObject.FindWithTag("PhysicsEngine").GetComponent<OldPhysicsEngine>(); } }
 		
 		private float gravityScaleStandart;
 		private float gravityScaleMultiplier;
@@ -18,7 +18,7 @@ namespace Scripts
 		public float Friction = 0.2f;
 		public float Restitution = 0f;
 
-		protected PhysicsWorld World { get; private set; }
+		protected OldPhysicsWorld World { get; private set; }
 		public Body Body { get; protected set; }
 
 		public float GravityScaleMultiplier
