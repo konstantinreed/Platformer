@@ -9,8 +9,8 @@ namespace GameLibrary
 	{
 		public readonly Fixture Fixture;
 
-		public PhysicsPlatform(GameApplication application, Vector2 position, float rotation, float halfWidth, float halfHeight)
-			: base(application, BodyType.Static, position, rotation, isFixedRotation: true)
+		public PhysicsPlatform(PhysicsSystem physicsSystem, Vector2 position, float rotation, float halfWidth, float halfHeight)
+			: base(physicsSystem, BodyType.Static, position, rotation, isFixedRotation: true)
 		{
 			var bodyShape = new PolygonShape(1f) {
 				Vertices = new Vertices(new[] {

@@ -2,7 +2,7 @@
 
 namespace Scripts
 {
-	public class OldCameraController : MonoBehaviour
+	public class CameraController : MonoBehaviour
 	{
 		private new Camera camera;
 		//private Vector3 velocity = Vector3.zero;

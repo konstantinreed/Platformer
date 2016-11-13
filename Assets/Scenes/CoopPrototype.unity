@@ -101,7 +101,6 @@ GameObject:
   - 4: {fileID: 52852456}
   - 33: {fileID: 52852460}
   - 23: {fileID: 52852458}
-  - 114: {fileID: 52852457}
   m_Layer: 0
   m_Name: Box
   m_TagString: Untagged
@@ -122,26 +121,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1625337358}
   m_RootOrder: 4
---- !u!114 &52852457
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 52852455}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b17471ff19679c428be815e7cb48ab9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IsDynamic: 0
-  IsFixedRotation: 0
-  Mass: 0
-  GravityScale: 1
-  Friction: 0.2
-  Restitution: 0
-  IsGround: 1
-  HalfWidth: 0.5
-  HalfHeight: 1.75
 --- !u!23 &52852458
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -178,46 +157,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 52852455}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &84542444
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 4
-  m_Component:
-  - 4: {fileID: 84542446}
-  - 114: {fileID: 84542445}
-  m_Layer: 0
-  m_Name: PhysicsEngine
-  m_TagString: PhysicsEngine
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &84542445
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 84542444}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f73f9c67c4fcaf4a8acc555e5c52cef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &84542446
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 84542444}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
 --- !u!1 &113439212
 GameObject:
   m_ObjectHideFlags: 0
@@ -360,8 +299,8 @@ GameObject:
   - 4: {fileID: 314628192}
   - 114: {fileID: 314628193}
   m_Layer: 0
-  m_Name: The
-  m_TagString: Untagged
+  m_Name: Application
+  m_TagString: Application
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -400,7 +339,6 @@ GameObject:
   - 4: {fileID: 619648743}
   - 33: {fileID: 619648747}
   - 23: {fileID: 619648745}
-  - 114: {fileID: 619648744}
   m_Layer: 0
   m_Name: Box
   m_TagString: Untagged
@@ -421,26 +359,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1625337358}
   m_RootOrder: 5
---- !u!114 &619648744
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 619648742}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b17471ff19679c428be815e7cb48ab9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IsDynamic: 0
-  IsFixedRotation: 0
-  Mass: 0
-  GravityScale: 1
-  Friction: 0.2
-  Restitution: 0
-  IsGround: 1
-  HalfWidth: 10
-  HalfHeight: 0.5
 --- !u!23 &619648745
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -553,7 +471,6 @@ GameObject:
   - 4: {fileID: 877865433}
   - 33: {fileID: 877865437}
   - 23: {fileID: 877865435}
-  - 114: {fileID: 877865434}
   m_Layer: 0
   m_Name: Box
   m_TagString: Untagged
@@ -574,26 +491,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1625337358}
   m_RootOrder: 2
---- !u!114 &877865434
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 877865432}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b17471ff19679c428be815e7cb48ab9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IsDynamic: 0
-  IsFixedRotation: 0
-  Mass: 0
-  GravityScale: 1
-  Friction: 0.2
-  Restitution: 0
-  IsGround: 1
-  HalfWidth: 5
-  HalfHeight: 0.5
 --- !u!23 &877865435
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -640,7 +537,6 @@ GameObject:
   - 4: {fileID: 878255180}
   - 33: {fileID: 878255179}
   - 23: {fileID: 878255177}
-  - 114: {fileID: 878255176}
   m_Layer: 0
   m_Name: Box
   m_TagString: Untagged
@@ -648,26 +544,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &878255176
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 878255175}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b17471ff19679c428be815e7cb48ab9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IsDynamic: 0
-  IsFixedRotation: 0
-  Mass: 0
-  GravityScale: 1
-  Friction: 0.2
-  Restitution: 0
-  IsGround: 1
-  HalfWidth: 25
-  HalfHeight: 0.5
 --- !u!23 &878255177
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -727,7 +603,6 @@ GameObject:
   - 4: {fileID: 1171056736}
   - 33: {fileID: 1171056735}
   - 23: {fileID: 1171056733}
-  - 114: {fileID: 1171056732}
   m_Layer: 0
   m_Name: Box
   m_TagString: Untagged
@@ -735,26 +610,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1171056732
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1171056731}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b17471ff19679c428be815e7cb48ab9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IsDynamic: 0
-  IsFixedRotation: 0
-  Mass: 0
-  GravityScale: 1
-  Friction: 0.2
-  Restitution: 0
-  IsGround: 1
-  HalfWidth: 0.5
-  HalfHeight: 3.5
 --- !u!23 &1171056733
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -814,7 +669,6 @@ GameObject:
   - 4: {fileID: 1188007080}
   - 33: {fileID: 1188007079}
   - 23: {fileID: 1188007077}
-  - 114: {fileID: 1188007076}
   m_Layer: 0
   m_Name: Box
   m_TagString: Untagged
@@ -822,26 +676,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1188007076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1188007075}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b17471ff19679c428be815e7cb48ab9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IsDynamic: 0
-  IsFixedRotation: 0
-  Mass: 0
-  GravityScale: 1
-  Friction: 0.2
-  Restitution: 0
-  IsGround: 1
-  HalfWidth: 0.5
-  HalfHeight: 5
 --- !u!23 &1188007077
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -901,7 +735,6 @@ GameObject:
   - 4: {fileID: 1370283974}
   - 33: {fileID: 1370283977}
   - 23: {fileID: 1370283976}
-  - 114: {fileID: 1370283975}
   m_Layer: 0
   m_Name: Box
   m_TagString: Untagged
@@ -922,26 +755,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1625337358}
   m_RootOrder: 6
---- !u!114 &1370283975
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1370283973}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b17471ff19679c428be815e7cb48ab9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IsDynamic: 0
-  IsFixedRotation: 0
-  Mass: 0
-  GravityScale: 1
-  Friction: 0.2
-  Restitution: 0
-  IsGround: 1
-  HalfWidth: 10
-  HalfHeight: 0.5
 --- !u!23 &1370283976
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1016,7 +829,7 @@ Transform:
   - {fileID: 619648743}
   - {fileID: 1370283974}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
 --- !u!1 &1671352898
 GameObject:
   m_ObjectHideFlags: 0
@@ -1026,7 +839,6 @@ GameObject:
   m_Component:
   - 4: {fileID: 1671352904}
   - 114: {fileID: 1671352899}
-  - 114: {fileID: 1671352900}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1042,37 +854,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1671352898}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb1b2f8293750144b85eef52738ac058, type: 3}
+  m_Script: {fileID: 11500000, guid: 686b9f00c99d5f64986decbc4fba318c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHorizontalSpeed: 10
-  MinVerticalSpeed: -30
-  MaxVerticalSpeed: 21
-  GravityScaleMultiplierGrounded: 2.2
   AnimatorGameObject: {fileID: 1523798205}
---- !u!114 &1671352900
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1671352898}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a2f5ca2406a68543a62427cad6585b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IsDynamic: 1
-  IsFixedRotation: 1
-  Mass: 70
-  GravityScale: 5.5
-  Friction: 0
-  Restitution: 0
-  BodyPosition: {x: 0, y: 1}
-  BodySize: {x: 0.95, y: 0.95}
-  FootPosition: {x: 0, y: 0.5}
-  FootRadius: 0.5
-  GroundSensorPosition: {x: 0, y: 0}
-  GroundSensorSize: {x: 0.25, y: 0.125}
 --- !u!4 &1671352904
 Transform:
   m_ObjectHideFlags: 0
@@ -1089,7 +874,7 @@ Transform:
   - {fileID: 179276839}
   - {fileID: 762993248}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
 --- !u!1001 &1701469917
 Prefab:
   m_ObjectHideFlags: 0
@@ -1243,7 +1028,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
 --- !u!114 &2022173233
 MonoBehaviour:
   m_ObjectHideFlags: 0
