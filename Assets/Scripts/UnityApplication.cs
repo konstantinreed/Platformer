@@ -50,7 +50,8 @@ namespace Scripts
 			var inputState = new InputState() {
 				Step = step,
 				IsLeftPressed = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow),
-				IsRightPressed = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)
+				IsRightPressed = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow),
+				IsJumpPressed = Input.GetKey(KeyCode.Space)
 			};
 			Client.SendInput(inputState);
 

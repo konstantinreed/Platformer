@@ -55,6 +55,7 @@
     <Compile Include="Source\PhysicsObjects\PhysicsPlayer.cs" />
     <Compile Include="Source\PhysicsSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\PlatformSensor.cs" />
     <Compile Include="Source\RingBuffer.cs" />
     <Compile Include="Source\Settings.cs" />
   </ItemGroup>
