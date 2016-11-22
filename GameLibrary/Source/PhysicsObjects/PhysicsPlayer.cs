@@ -53,6 +53,7 @@ namespace GameLibrary
 		private const float Restitution = 0f;
 		// Dynamics consts
 		public const float MaxHorizontalSpeed = 10f;
+		public const float HorizontalCorrectionInAir = 0.1f;
 		public const float MinVerticalSpeed = -30f;
 		public const float MaxVerticalSpeed = 20f;
 		private const float NoGravityScaleAfterJumpSteps = 4;
@@ -134,8 +135,16 @@ namespace GameLibrary
 
 			// Horizontal velocity
 			var inputX = Input.IsLeftPressed != Input.IsRightPressed ? (Input.IsLeftPressed ? -1f : 1f) : 0f;
-			velocityX = inputX * MaxHorizontalSpeed;
-			// TODO: Rework player jump
+			if (
+				State.Animation == PlayerAnimation.Idle ||
+				State.Animation == PlayerAnimation.Running ||
+				State.Animation == PlayerAnimation.Landing
+			) {
+				velocityX = inputX * MaxHorizontalSpeed;
+			} else {
+				velocityX += inputX * MaxHorizontalSpeed * HorizontalCorrectionInAir;
+				velocityX = Mathf.Clamp(velocityX, -MaxHorizontalSpeed, MaxHorizontalSpeed);
+			}
 			var velocityXFactor = Mathf.Abs(velocityX) / MaxHorizontalSpeed;
 			
 			if (State.Animation == PlayerAnimation.Landing && State.Step >= State.LandedStep + LandingSteps) {
@@ -144,7 +153,6 @@ namespace GameLibrary
 
 			// Apply physics
 			Body.LinearVelocity = new Vector2(velocityX, velocityY);
-			// TODO: Rework player jump
 			var isOnGround =
 				State.Animation == PlayerAnimation.Idle ||
 				State.Animation == PlayerAnimation.Running ||
