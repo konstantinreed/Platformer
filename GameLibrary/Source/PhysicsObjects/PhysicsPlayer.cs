@@ -9,16 +9,26 @@ namespace GameLibrary
 	{
 		Idle,
 		Running,
-		//Jumping, // TODO: Rework player jump
-		//Falling,
-		//Landing
+		Jumping,
+		Falling,
+		Landing
 	}
 
-	public struct PlayerState
+	public struct PlayerState : IStepState
 	{
+		public bool WasInitialized { get; set; }
+		public int Step { get; set; }
+
+		public PlayerAnimation Animation;
 		public Vector2 Position;
 		public Vector2 Velocity;
-		public PlayerAnimation Animation;
+		public bool IsGrounded;
+		public int JumpedStep;
+		public int LandedStep;
+
+		// TODO: Old landing system. Rework.
+		public float LastLandingVelocityYFactor;
+		public float LandingVelocityYFactor;
 	}
 
 	public class PhysicsPlayer : PhysicsBody
@@ -44,21 +54,15 @@ namespace GameLibrary
 		// Dynamics consts
 		public const float MaxHorizontalSpeed = 10f;
 		public const float MinVerticalSpeed = -30f;
-		public const float MaxVerticalSpeed = 10f;
-		private const float NoGravityScaleAfterJumpDuration = 0.2f;
-		private const float LandingDuration = 0.25f;
+		public const float MaxVerticalSpeed = 20f;
+		private const float NoGravityScaleAfterJumpSteps = 4;
+		private const int LandingSteps = 1;
+
+		private readonly PlatformSensor groundSendor;
 
 		public ClientInstance Owner { get; set; }
 		public InputState Input { get { return Owner.Input; } }
 		public PlayerState State;
-
-		//private int groundContactsNum; // TODO: Rework player jump
-		//private float jumpedTime = NoGravityScaleAfterJumpDuration + Mathf.ZeroTolerance;
-		//private float landedTime = LandingDuration + Mathf.ZeroTolerance;
-		//private float lastLandingVelocityYFactor;
-		//private float landingVelocityYFactor;
-
-		//public bool IsGrounded { get { return groundContactsNum > 0; } } // TODO: Rework player jump
 
 		public PhysicsPlayer(PhysicsSystem physicsSystem, Vector2 position)
 			: base(physicsSystem, BodyType.Dynamic, position, 0f, true, Mass, GravityScale, Friction, Restitution)
@@ -80,109 +84,77 @@ namespace GameLibrary
 			};
 			Body.CreateFixture(footShape);
 
-			/* // TODO: Rework player jump
-			var groundSensorPosition = new Vector2(GroundSensorX, GroundSensorY);
-			var groundSensorHalf = new Vector2(GroundSensorWidth, GroundSensorHeight) * 0.5f;
-			var groundSensorShape = new PolygonShape(1f) {
-				Vertices = new Vertices(new[] {
-					groundSensorPosition + new Vector2(-groundSensorHalf.X, -groundSensorHalf.Y),
-					groundSensorPosition + new Vector2(groundSensorHalf.X, -groundSensorHalf.Y),
-					groundSensorPosition + new Vector2(groundSensorHalf.X, groundSensorHalf.Y),
-					groundSensorPosition + new Vector2(-groundSensorHalf.X, groundSensorHalf.Y)
-				})
-			};
-			var groundSensorFixture = Body.CreateFixture(groundSensorShape);
-			groundSensorFixture.IsSensor = true;
-			groundSensorFixture.UserData = new PhysicsBodyData() {
-				BeginContact = BeginGroundContact,
-				EndContact = EndGroundContact
-			};
-			*/
+			groundSendor = new PlatformSensor(
+				physicsSystem.World,
+				GroundSensorWidth,
+				GroundSensorHeight,
+				GroundSensorX,
+				GroundSensorY
+			);
 		}
 
 		public override void FixedUpdate(float delta)
 		{
+			groundSendor.Update(Body.Position);
+			State.IsGrounded = groundSendor.IsActive;
+
 			var velocityX = Body.LinearVelocity.X;
 			var velocityY = Mathf.Clamp(Body.LinearVelocity.Y, MinVerticalSpeed, MaxVerticalSpeed);
-
-			/* // TODO: Rework player jump
+			
 			// Vertical velocity
-			if (CanJump() && IsKeyJumpDown) {
-				State = PlayerState.Jumping;
+			if (
+				Input.IsJumpPressed &&
+				State.Animation != PlayerAnimation.Jumping &&
+				State.Animation != PlayerAnimation.Falling &&
+				State.IsGrounded &&
+				State.Step >= State.JumpedStep + NoGravityScaleAfterJumpSteps
+			) {
+				State.Animation = PlayerAnimation.Jumping;
 				velocityY = MaxVerticalSpeed;
-				jumpedTime = 0f;
+				State.JumpedStep = State.Step;
 			}
 			var velocityYFactor = velocityY / (velocityY >= 0 ? MaxVerticalSpeed : -MinVerticalSpeed);
-			if (!IsGrounded && velocityY <= 0) {
-				State = PlayerState.Falling;
+			if (!State.IsGrounded && velocityY <= 0) {
+				State.Animation = PlayerAnimation.Falling;
 			}
 			if (
-				IsGrounded &&
+				State.IsGrounded &&
 				(
-					(State == PlayerState.Jumping && jumpedTime >= NoGravityScaleAfterJumpDuration) ||
-					State == PlayerState.Falling
+					(
+						State.Animation == PlayerAnimation.Jumping &&
+						State.Step > State.JumpedStep + NoGravityScaleAfterJumpSteps
+					) ||
+					State.Animation == PlayerAnimation.Falling
 				)
 			) {
-				State = PlayerState.Landing;
-				landedTime = 0f;
-				landingVelocityYFactor = lastLandingVelocityYFactor;
+				State.Animation = PlayerAnimation.Landing;
+				State.LandedStep = State.Step;
+				State.LandingVelocityYFactor = State.LastLandingVelocityYFactor;
 			}
-			var isOnGround = State == PlayerState.Idle || State == PlayerState.Running || State == PlayerState.Landing;
-			*/
 
 			// Horizontal velocity
 			var inputX = Input.IsLeftPressed != Input.IsRightPressed ? (Input.IsLeftPressed ? -1f : 1f) : 0f;
 			velocityX = inputX * MaxHorizontalSpeed;
-			/* // TODO: Rework player jump
+			// TODO: Rework player jump
 			var velocityXFactor = Mathf.Abs(velocityX) / MaxHorizontalSpeed;
 			
-			if (State == PlayerState.Landing && landedTime >= LandingDuration) {
-				State = velocityXFactor > 0.01f ? PlayerState.Running : PlayerState.Idle;
+			if (State.Animation == PlayerAnimation.Landing && State.Step >= State.LandedStep + LandingSteps) {
+				State.Animation = velocityXFactor > 0.01f ? PlayerAnimation.Running : PlayerAnimation.Idle;
 			}
-			*/
 
 			// Apply physics
 			Body.LinearVelocity = new Vector2(velocityX, velocityY);
-			/* // TODO: Rework player jump
+			// TODO: Rework player jump
+			var isOnGround =
+				State.Animation == PlayerAnimation.Idle ||
+				State.Animation == PlayerAnimation.Running ||
+				State.Animation == PlayerAnimation.Landing;
 			Body.GravityScale = isOnGround ? GroundGravityScale : GravityScale;
 
 			//
 			if (velocityYFactor <= -0.01f) {
-				lastLandingVelocityYFactor = velocityYFactor;
-			}
-			*/
-		}
-
-		/* // TODO: Rework player jump
-		private bool CanJump()
-		{
-			return
-				State != PlayerState.Jumping &&
-				State != PlayerState.Falling &&
-				IsGrounded &&
-				jumpedTime >= NoGravityScaleAfterJumpDuration;
-		}
-		
-		private bool BeginGroundContact(Contact contact, PhysicsContactSide side)
-		{
-			var fixture = side == PhysicsContactSide.A ? contact.FixtureB : contact.FixtureA;
-			var userData = fixture.UserData as PhysicsBodyData;
-
-			if (userData != null && userData.IsPlatform) {
-				groundContactsNum++;
-			}
-			return true;
-		}
-
-		private void EndGroundContact(Contact contact, PhysicsContactSide side)
-		{
-			var fixture = side == PhysicsContactSide.A ? contact.FixtureB : contact.FixtureA;
-			var userData = fixture.UserData as PhysicsBodyData;
-
-			if (userData != null && userData.IsPlatform) {
-				groundContactsNum--;
+				State.LastLandingVelocityYFactor = velocityYFactor;
 			}
 		}
-		*/
 	}
 }

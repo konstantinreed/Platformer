@@ -63,6 +63,15 @@ namespace GameLibrary
 					client.Input = client.InputStates[currentStep];
 				}
 
+				// TODO: Жуткая залепа для ClientSidePreesiction. Надо сделать ротацию состояний для объектов
+				//требующих синхронизации
+				foreach (var physicsObject in PhysicsSystem.Objects) {
+					var syncObject = physicsObject as PhysicsPlayer;
+					if (syncObject == null) {
+						continue;
+					}
+					syncObject.State.Step = currentStep;
+				}
 				PhysicsSystem.FixedUpdate();
 			}
 		}

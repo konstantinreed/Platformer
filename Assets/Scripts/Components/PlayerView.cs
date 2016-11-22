@@ -4,7 +4,6 @@ using UnityEngine;
 namespace Scripts
 {
 	using Mathf = GameLibrary.Mathf;
-	using Vec2 = Microsoft.Xna.Framework.Vector2;
 
 	public class PlayerView : MonoBehaviour
 	{
@@ -39,11 +38,11 @@ namespace Scripts
 			if (animator != null) {
 				animator.SetFloat("VelocityX", velocityXFactor);
 				animator.SetFloat("VelocityY", velocityYFactor);
-				//animator.SetFloat("LandingVelocityYFactor", landingVelocityYFactor);
-				//animator.SetBool("IsGroundSensorActive", isOnGround);
-				//animator.SetBool("IsJumping", state == State.Jumping);
-				//animator.SetBool("IsFalling", state == State.Falling);
-				//animator.SetBool("IsLanding", state == State.Landing);
+				animator.SetFloat("LandingVelocityYFactor", physicsPlayer.State.LandingVelocityYFactor);
+				animator.SetBool("IsGroundSensorActive", physicsPlayer.State.IsGrounded);
+				animator.SetBool("IsJumping", physicsPlayer.State.Animation == PlayerAnimation.Jumping);
+				animator.SetBool("IsFalling", physicsPlayer.State.Animation == PlayerAnimation.Falling);
+				animator.SetBool("IsLanding", physicsPlayer.State.Animation == PlayerAnimation.Landing);
 			}
 		}
 

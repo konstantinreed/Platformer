@@ -7,5 +7,6 @@
 
 		public bool IsLeftPressed;
 		public bool IsRightPressed;
+		public bool IsJumpPressed;
 	}
 }
