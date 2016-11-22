@@ -28,40 +28,35 @@ namespace GameLibrary
 		public float LastFallingVelocityYFactor;
 		public float LandingVelocityYFactor;
 
-		public bool DoneJumpingConditions
-		{
-			get { return IsGrounded && Animation != PlayerAnimation.Jumping && Animation != PlayerAnimation.Falling; }
-		}
-		public bool DoneFallingConditions { get { return !IsGrounded; } }
-		public bool DoneLandingConditions
-		{
-			get
-			{
-				return
-					IsGrounded &&
-					(
-						Animation == PlayerAnimation.Falling ||
-						(
-							Animation == PlayerAnimation.Jumping &&
-							Step > JumpedStep + PhysicsPlayer.JumpingSteps
-						)
-					);
-			}
-		}
-		public bool IsLanded
-		{
-			get
-			{
-				return
-					Animation == PlayerAnimation.Idle ||
-					Animation == PlayerAnimation.Running ||
-					Animation == PlayerAnimation.Landing;
-			}
-		}
-		public bool DoneLandingFinishConditions
-		{
-			get { return Animation == PlayerAnimation.Landing && Step >= LandedStep + PhysicsPlayer.LandingSteps; }
-		}
+		public bool IsLanded =>
+			Animation == PlayerAnimation.Idle ||
+			Animation == PlayerAnimation.Running ||
+			Animation == PlayerAnimation.Landing;
+
+		public bool DoneJumpingConditions =>
+			IsGrounded &&
+			Animation != PlayerAnimation.Jumping &&
+			Animation != PlayerAnimation.Falling;
+
+		public bool DoneJumpingReinforcementConditions =>
+			Animation == PlayerAnimation.Jumping &&
+			Step == JumpedStep + PhysicsPlayer.JumpingReinforcement;
+
+		public bool DoneFallingConditions => !IsGrounded;
+
+		public bool DoneLandingConditions =>
+			IsGrounded &&
+		    (
+			    Animation == PlayerAnimation.Falling ||
+			    (
+				    Animation == PlayerAnimation.Jumping &&
+				    Step > JumpedStep + PhysicsPlayer.JumpingSteps
+			    )
+		    );
+
+		public bool DoneLandingFinishConditions =>
+			Animation == PlayerAnimation.Landing &&
+			Step >= LandedStep + PhysicsPlayer.LandingSteps;
 	}
 
 	public class PhysicsPlayer : PhysicsBody
@@ -88,14 +83,16 @@ namespace GameLibrary
 		public const float MaxHorizontalSpeed = 10f;
 		private const float HorizontalCorrectionInAir = 0.1f;
 		public const float MinVerticalSpeed = -30f;
-		public const float MaxVerticalSpeed = 20f;
+		public const float MaxVerticalSpeed = 15f;
+		public const float ReinforcementVerticalSpeed = 13f;
 		internal const float JumpingSteps = 4;
+		internal const float JumpingReinforcement = 4;
 		internal const int LandingSteps = 1;
 
 		private readonly PlatformSensor groundSendor;
 
 		public ClientInstance Owner { get; set; }
-		public InputState Input { get { return Owner.Input; } }
+		public InputState Input => Owner.Input;
 		public PlayerState State;
 
 		public PhysicsPlayer(PhysicsSystem physicsSystem, Vector2 position)
@@ -136,7 +133,7 @@ namespace GameLibrary
 			var velocityY = Mathf.Clamp(Body.LinearVelocity.Y, MinVerticalSpeed, MaxVerticalSpeed);
 			
 			// Vertical velocity
-			if (Input.IsJumpPressed && State.DoneJumpingConditions) {
+			if (Input.IsJumpJustPressed && State.DoneJumpingConditions) {
 				State.Animation = PlayerAnimation.Jumping;
 				velocityY = MaxVerticalSpeed;
 				State.JumpedStep = State.Step;
@@ -148,6 +145,9 @@ namespace GameLibrary
 				State.Animation = PlayerAnimation.Landing;
 				State.LandedStep = State.Step;
 				State.LandingVelocityYFactor = State.LastFallingVelocityYFactor;
+			}
+			if (Input.IsJumpPressed && Input.JumpPressedStep == State.JumpedStep && State.DoneJumpingReinforcementConditions) {
+				velocityY = ReinforcementVerticalSpeed;
 			}
 			var velocityYFactor = velocityY / (velocityY >= 0 ? MaxVerticalSpeed : -MinVerticalSpeed);
 

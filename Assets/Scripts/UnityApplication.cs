@@ -9,6 +9,9 @@ namespace Scripts
 			get { return GameObject.FindGameObjectWithTag("Application").GetComponent<UnityApplication>(); }
 		}
 
+		private bool WasJumpPressedDuringStep;
+		private int JumpPressedStep;
+
 		public GameApplication Application { get; private set; }
 		public ClientInstance Client { get; private set; }
 		public int CurrentStep { get; private set; }
@@ -35,10 +38,16 @@ namespace Scripts
 		{
 			Application.ClientUpdate();
 
+			WasJumpPressedDuringStep = WasJumpPressedDuringStep || Input.GetKeyDown(KeyCode.Space);
 			if (CurrentStep < Application.CurrentStep) {
 				CurrentStep = Application.CurrentStep;
+				if (WasJumpPressedDuringStep) {
+					JumpPressedStep = CurrentStep;
+				}
 				SendInput(CurrentStep);
+				WasJumpPressedDuringStep = false;
 			}
+
 			if (CurrentSimulationStep < Application.CurrentSimulationStep) {
 				CurrentSimulationStep = Application.CurrentSimulationStep;
 				Application.ClientSimulation();
@@ -51,7 +60,8 @@ namespace Scripts
 				Step = step,
 				IsLeftPressed = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow),
 				IsRightPressed = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow),
-				IsJumpPressed = Input.GetKey(KeyCode.Space)
+				IsJumpPressed = Input.GetKey(KeyCode.Space),
+				JumpPressedStep = JumpPressedStep
 			};
 			Client.SendInput(inputState);
 
