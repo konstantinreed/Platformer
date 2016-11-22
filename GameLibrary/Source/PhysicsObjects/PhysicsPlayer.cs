@@ -25,10 +25,43 @@ namespace GameLibrary
 		public bool IsGrounded;
 		public int JumpedStep;
 		public int LandedStep;
-
-		// TODO: Old landing system. Rework.
-		public float LastLandingVelocityYFactor;
+		public float LastFallingVelocityYFactor;
 		public float LandingVelocityYFactor;
+
+		public bool DoneJumpingConditions
+		{
+			get { return IsGrounded && Animation != PlayerAnimation.Jumping && Animation != PlayerAnimation.Falling; }
+		}
+		public bool DoneFallingConditions { get { return !IsGrounded; } }
+		public bool DoneLandingConditions
+		{
+			get
+			{
+				return
+					IsGrounded &&
+					(
+						Animation == PlayerAnimation.Falling ||
+						(
+							Animation == PlayerAnimation.Jumping &&
+							Step > JumpedStep + PhysicsPlayer.JumpingSteps
+						)
+					);
+			}
+		}
+		public bool IsLanded
+		{
+			get
+			{
+				return
+					Animation == PlayerAnimation.Idle ||
+					Animation == PlayerAnimation.Running ||
+					Animation == PlayerAnimation.Landing;
+			}
+		}
+		public bool DoneLandingFinishConditions
+		{
+			get { return Animation == PlayerAnimation.Landing && Step >= LandedStep + PhysicsPlayer.LandingSteps; }
+		}
 	}
 
 	public class PhysicsPlayer : PhysicsBody
@@ -53,11 +86,11 @@ namespace GameLibrary
 		private const float Restitution = 0f;
 		// Dynamics consts
 		public const float MaxHorizontalSpeed = 10f;
-		public const float HorizontalCorrectionInAir = 0.1f;
+		private const float HorizontalCorrectionInAir = 0.1f;
 		public const float MinVerticalSpeed = -30f;
 		public const float MaxVerticalSpeed = 20f;
-		private const float NoGravityScaleAfterJumpSteps = 4;
-		private const int LandingSteps = 1;
+		internal const float JumpingSteps = 4;
+		internal const int LandingSteps = 1;
 
 		private readonly PlatformSensor groundSendor;
 
@@ -103,43 +136,24 @@ namespace GameLibrary
 			var velocityY = Mathf.Clamp(Body.LinearVelocity.Y, MinVerticalSpeed, MaxVerticalSpeed);
 			
 			// Vertical velocity
-			if (
-				Input.IsJumpPressed &&
-				State.Animation != PlayerAnimation.Jumping &&
-				State.Animation != PlayerAnimation.Falling &&
-				State.IsGrounded &&
-				State.Step >= State.JumpedStep + NoGravityScaleAfterJumpSteps
-			) {
+			if (Input.IsJumpPressed && State.DoneJumpingConditions) {
 				State.Animation = PlayerAnimation.Jumping;
 				velocityY = MaxVerticalSpeed;
 				State.JumpedStep = State.Step;
 			}
-			var velocityYFactor = velocityY / (velocityY >= 0 ? MaxVerticalSpeed : -MinVerticalSpeed);
-			if (!State.IsGrounded && velocityY <= 0) {
+			if (velocityY <= 0 && State.DoneFallingConditions) {
 				State.Animation = PlayerAnimation.Falling;
 			}
-			if (
-				State.IsGrounded &&
-				(
-					(
-						State.Animation == PlayerAnimation.Jumping &&
-						State.Step > State.JumpedStep + NoGravityScaleAfterJumpSteps
-					) ||
-					State.Animation == PlayerAnimation.Falling
-				)
-			) {
+			if (State.DoneLandingConditions) {
 				State.Animation = PlayerAnimation.Landing;
 				State.LandedStep = State.Step;
-				State.LandingVelocityYFactor = State.LastLandingVelocityYFactor;
+				State.LandingVelocityYFactor = State.LastFallingVelocityYFactor;
 			}
+			var velocityYFactor = velocityY / (velocityY >= 0 ? MaxVerticalSpeed : -MinVerticalSpeed);
 
 			// Horizontal velocity
 			var inputX = Input.IsLeftPressed != Input.IsRightPressed ? (Input.IsLeftPressed ? -1f : 1f) : 0f;
-			if (
-				State.Animation == PlayerAnimation.Idle ||
-				State.Animation == PlayerAnimation.Running ||
-				State.Animation == PlayerAnimation.Landing
-			) {
+			if (State.IsLanded) {
 				velocityX = inputX * MaxHorizontalSpeed;
 			} else {
 				velocityX += inputX * MaxHorizontalSpeed * HorizontalCorrectionInAir;
@@ -147,21 +161,16 @@ namespace GameLibrary
 			}
 			var velocityXFactor = Mathf.Abs(velocityX) / MaxHorizontalSpeed;
 			
-			if (State.Animation == PlayerAnimation.Landing && State.Step >= State.LandedStep + LandingSteps) {
+			if (State.DoneLandingFinishConditions) {
 				State.Animation = velocityXFactor > 0.01f ? PlayerAnimation.Running : PlayerAnimation.Idle;
 			}
 
 			// Apply physics
 			Body.LinearVelocity = new Vector2(velocityX, velocityY);
-			var isOnGround =
-				State.Animation == PlayerAnimation.Idle ||
-				State.Animation == PlayerAnimation.Running ||
-				State.Animation == PlayerAnimation.Landing;
-			Body.GravityScale = isOnGround ? GroundGravityScale : GravityScale;
-
-			//
+			Body.GravityScale = State.IsLanded ? GroundGravityScale : GravityScale;
+			
 			if (velocityYFactor <= -0.01f) {
-				State.LastLandingVelocityYFactor = velocityYFactor;
+				State.LastFallingVelocityYFactor = velocityYFactor;
 			}
 		}
 	}
