@@ -54,11 +54,11 @@ namespace GameLibrary
 		// Dynamics consts
 		public const float MaxHorizontalSpeed = 10f;
 		public const float MinVerticalSpeed = -30f;
-		public const float MaxVerticalSpeed = 10f;
+		public const float MaxVerticalSpeed = 20f;
 		private const float NoGravityScaleAfterJumpSteps = 4;
-		private const int LandingSteps = 5;
+		private const int LandingSteps = 1;
 
-		private PlatformSensor groundSendor;
+		private readonly PlatformSensor groundSendor;
 
 		public ClientInstance Owner { get; set; }
 		public InputState Input { get { return Owner.Input; } }
@@ -107,7 +107,7 @@ namespace GameLibrary
 				State.Animation != PlayerAnimation.Jumping &&
 				State.Animation != PlayerAnimation.Falling &&
 				State.IsGrounded &&
-				State.Step > State.JumpedStep + NoGravityScaleAfterJumpSteps
+				State.Step >= State.JumpedStep + NoGravityScaleAfterJumpSteps
 			) {
 				State.Animation = PlayerAnimation.Jumping;
 				velocityY = MaxVerticalSpeed;
@@ -131,10 +131,6 @@ namespace GameLibrary
 				State.LandedStep = State.Step;
 				State.LandingVelocityYFactor = State.LastLandingVelocityYFactor;
 			}
-			var isOnGround =
-				State.Animation == PlayerAnimation.Idle ||
-				State.Animation == PlayerAnimation.Running ||
-				State.Animation == PlayerAnimation.Landing;
 
 			// Horizontal velocity
 			var inputX = Input.IsLeftPressed != Input.IsRightPressed ? (Input.IsLeftPressed ? -1f : 1f) : 0f;
@@ -142,13 +138,17 @@ namespace GameLibrary
 			// TODO: Rework player jump
 			var velocityXFactor = Mathf.Abs(velocityX) / MaxHorizontalSpeed;
 			
-			if (State.Animation == PlayerAnimation.Landing && State.Step > State.LandedStep + LandingSteps) {
+			if (State.Animation == PlayerAnimation.Landing && State.Step >= State.LandedStep + LandingSteps) {
 				State.Animation = velocityXFactor > 0.01f ? PlayerAnimation.Running : PlayerAnimation.Idle;
 			}
 
 			// Apply physics
 			Body.LinearVelocity = new Vector2(velocityX, velocityY);
 			// TODO: Rework player jump
+			var isOnGround =
+				State.Animation == PlayerAnimation.Idle ||
+				State.Animation == PlayerAnimation.Running ||
+				State.Animation == PlayerAnimation.Landing;
 			Body.GravityScale = isOnGround ? GroundGravityScale : GravityScale;
 
 			//
