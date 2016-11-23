@@ -330,7 +330,7 @@ ModelImporter:
       name: Jump
       takeName: Main
       firstFrame: 180
-      lastFrame: 195
+      lastFrame: 190
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -636,7 +636,7 @@ ModelImporter:
       name: LandingRun
       takeName: Main
       firstFrame: 305
-      lastFrame: 310
+      lastFrame: 315
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
