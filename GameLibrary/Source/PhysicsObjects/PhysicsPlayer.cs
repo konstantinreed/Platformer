@@ -40,7 +40,8 @@ namespace GameLibrary
 			Animation != PlayerAnimation.Falling;
 
 		public bool DoneWallJumpingConditions =>
-			IsClingedWall;
+			IsClingedWall &&
+			Step > JumpedStep + PhysicsPlayer.JumpingSteps;
 
 		public bool DoneJumpingReinforcementConditions =>
 			Animation == PlayerAnimation.Jumping &&
@@ -158,7 +159,7 @@ namespace GameLibrary
 			leftWallSendor.Update(Body.Position);
 			rightWallSendor.Update(Body.Position);
 			State.IsGrounded = groundSendor.IsActive;
-			State.IsClingedWall = leftWallSendor.IsActive || rightWallSendor.IsActive;
+			State.IsClingedWall = !State.IsGrounded && (leftWallSendor.IsActive || rightWallSendor.IsActive);
 
 			var velocityX = Body.LinearVelocity.X;
 			var velocityY = Mathf.Clamp(Body.LinearVelocity.Y, MinVerticalSpeed, MaxVerticalSpeed);

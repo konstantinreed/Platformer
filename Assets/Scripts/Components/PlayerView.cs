@@ -7,6 +7,8 @@ namespace Scripts
 
 	public class PlayerView : MonoBehaviour
 	{
+		private const float FlipTolerance = 0.05f;
+
 		private PhysicsPlayer physicsPlayer;
 		private Animator animator;
 		private bool isFacingRight = true;
@@ -26,7 +28,7 @@ namespace Scripts
 
 			var velocity = physicsPlayer.Body.LinearVelocity;
 
-			if ((velocity.X > 0 && !isFacingRight) || (velocity.X < 0 && isFacingRight)) {
+			if ((velocity.X > FlipTolerance && !isFacingRight) || (velocity.X < -FlipTolerance && isFacingRight)) {
 				Flip();
 			}
 
