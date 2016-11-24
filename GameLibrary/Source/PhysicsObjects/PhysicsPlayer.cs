@@ -63,12 +63,12 @@ namespace GameLibrary
 	{
 		// Fixtures consts
 		private const float BodyX = 0f;
-		private const float BodyY = 1f;
-		private const float BodyWidth = 0.95f;
-		private const float BodyHeight = 0.95f;
+		private const float BodyY = 0.9f;
+		private const float BodyWidth = 0.6f;
+		private const float BodyHeight = 1.15f;
 		private const float FootX = 0f;
-		private const float FootY = 0.5f;
-		private const float FootRadius = 0.5f;
+		private const float FootY = 0.305f;
+		private const float FootRadius = 0.305f;
 		private const float GroundSensorX = 0f;
 		private const float GroundSensorY = 0f;
 		private const float GroundSensorWidth = 0.25f;
@@ -85,8 +85,8 @@ namespace GameLibrary
 		public const float MinVerticalSpeed = -30f;
 		public const float MaxVerticalSpeed = 15f;
 		public const float ReinforcementVerticalSpeed = 13f;
-		internal const float JumpingSteps = 4;
-		internal const float JumpingReinforcement = 4;
+		internal const int JumpingSteps = 4;
+		internal const int JumpingReinforcement = 4;
 		internal const int LandingSteps = 1;
 
 		private readonly PlatformSensor groundSendor;
