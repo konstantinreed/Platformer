@@ -42,6 +42,7 @@ namespace Scripts
 				animator.SetFloat("VelocityY", velocityYFactor);
 				animator.SetFloat("LandingVelocityYFactor", physicsPlayer.State.LandingVelocityYFactor);
 				animator.SetBool("IsGroundSensorActive", physicsPlayer.State.IsGrounded);
+				animator.SetBool("IsWallSensorActive", physicsPlayer.State.IsClingedWall);
 				animator.SetBool("IsJumping", physicsPlayer.State.Animation == PlayerAnimation.Jumping);
 				animator.SetBool("IsFalling", physicsPlayer.State.Animation == PlayerAnimation.Falling);
 				animator.SetBool("IsLanding", physicsPlayer.State.Animation == PlayerAnimation.Landing);
