@@ -19,13 +19,17 @@ namespace GameLibrary
 			new PhysicsPlatform(application.PhysicsSystem, new Vector2(12f, 4f), 0f, 10f, 0.5f);
 			new PhysicsPlatform(application.PhysicsSystem, new Vector2(39f, 4f), 0f, 10f, 0.5f);
 
-			new PhysicsPlatform(application.PhysicsSystem, new Vector2(-10f, 5f), 0f, 0.5f, 3.5f);
+			new PhysicsPlatform(application.PhysicsSystem, new Vector2(-10f, 9.25f), 0f, 0.5f, 7.75f);
 			new PhysicsPlatform(application.PhysicsSystem, new Vector2(50.5f, 4.5f), 0f, 0.5f, 5f);
+
+			new PhysicsPlatform(application.PhysicsSystem, new Vector2(-5f, 8f), 0f, 0.5f, 3.5f);
+			new PhysicsPlatform(application.PhysicsSystem, new Vector2(0.5f, 11f), 0f, 5f, 0.5f);
+			new PhysicsPlatform(application.PhysicsSystem, new Vector2(-2f, 16.5f), 0f, 7.5f, 0.5f);
 		}
 
 		public PhysicsPlayer SpawnPlayer()
 		{
-			return new PhysicsPlayer(application.PhysicsSystem, new Vector2(17.13f, 4.89f));
+			return new PhysicsPlayer(application.PhysicsSystem, new Vector2(-2.25f, 1.5f));
 		}
 	}
 }
