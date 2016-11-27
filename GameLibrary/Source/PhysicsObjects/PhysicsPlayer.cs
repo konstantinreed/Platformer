@@ -27,6 +27,7 @@ namespace GameLibrary
 		public bool IsClingedWall;
 		public int JumpedStep;
 		public int LandedStep;
+		public int HorizontalCorrectionStep;
 		public float LastFallingVelocityYFactor;
 		public float LandingVelocityYFactor;
 
@@ -51,23 +52,19 @@ namespace GameLibrary
 			Step == JumpedStep + PhysicsPlayer.JumpingReinforcement;
 
 		public bool DoneHorizontalCorrectionConditions =>
-			Animation == PlayerAnimation.Jumping ||
-			(
-				Animation == PlayerAnimation.WallJumping &&
-				Step > JumpedStep + PhysicsPlayer.WallJumpingUnalteredSteps
-			);
+			Step >= HorizontalCorrectionStep;
 
 		public bool DoneFallingConditions => !IsGrounded;
 
 		public bool DoneLandingConditions =>
 			IsGrounded &&
-		    (
-			    Animation == PlayerAnimation.Falling ||
-			    (
-				    (Animation == PlayerAnimation.Jumping || Animation == PlayerAnimation.WallJumping) &&
-				    Step > JumpedStep + PhysicsPlayer.JumpingSteps
-			    )
-		    );
+			(
+				Animation == PlayerAnimation.Falling ||
+				(
+					(Animation == PlayerAnimation.Jumping || Animation == PlayerAnimation.WallJumping) &&
+					Step > JumpedStep + PhysicsPlayer.JumpingSteps
+				)
+			);
 
 		public bool DoneLandingFinishConditions =>
 			Animation == PlayerAnimation.Landing &&
@@ -104,14 +101,17 @@ namespace GameLibrary
 		private const float Restitution = 0f;
 		// Dynamics consts
 		public const float MaxHorizontalSpeed = 10f;
-		private const float HorizontalCorrectionInAir = 0.1f;
+		public const float MaxVerticalSpeed = 19f;
 		public const float MinVerticalSpeed = -30f;
-		public const float MaxVerticalSpeed = 15f;
-		public const float ReinforcementVerticalSpeed = 13f;
+		private const float HorizontalCorrectionInAir = 0.1f;
+		private const float JumpVerticalSpeed = 15f;
+		private const float ReinforcementVerticalSpeed = 13f;
+		private const float WallJumpVerticalSpeed = 19f;
+		private const float WallJumpHorizontalSpeed = 7f;
 		internal const int JumpingSteps = 4;
 		internal const int JumpingReinforcement = 4;
-		internal const int WallJumpingUnalteredSteps = 13;
-		internal const int LandingSteps = 1;
+		internal const int WallJumpUnalteredSteps = 13;
+		internal const int LandingSteps = 3;
 
 		private readonly PlatformSensor groundSendor;
 		private readonly PlatformSensor leftWallSendor;
@@ -179,13 +179,16 @@ namespace GameLibrary
 			if (Input.IsJumpJustPressed) {
 				if (State.DoneJumpingConditions) {
 					State.Animation = PlayerAnimation.Jumping;
-					velocityY = MaxVerticalSpeed;
+					velocityY = JumpVerticalSpeed;
 					State.JumpedStep = State.Step;
+					State.HorizontalCorrectionStep = State.JumpedStep;
 				} else if (State.DoneWallJumpingConditions) {
 					State.Animation = PlayerAnimation.WallJumping;
-					velocityY = MaxVerticalSpeed;
+					velocityY = WallJumpVerticalSpeed;
 					var signX = leftWallSendor.IsActive ? 1f : -1f;
-					velocityX = signX * MaxHorizontalSpeed;
+					velocityX = signX * WallJumpHorizontalSpeed;
+					State.JumpedStep = State.Step;
+					State.HorizontalCorrectionStep = State.JumpedStep + WallJumpUnalteredSteps;
 				}
 			}
 			if (velocityY <= 0 && State.DoneFallingConditions) {
@@ -208,6 +211,9 @@ namespace GameLibrary
 			} else if (State.DoneHorizontalCorrectionConditions) {
 				velocityX += inputX * MaxHorizontalSpeed * HorizontalCorrectionInAir;
 				velocityX = Mathf.Clamp(velocityX, -MaxHorizontalSpeed, MaxHorizontalSpeed);
+				if ((leftWallSendor.IsActive && velocityX < 0.01f) || (rightWallSendor.IsActive && velocityX > 0.01f)) {
+					velocityX = 0f;
+				}
 			}
 			var velocityXFactor = Mathf.Abs(velocityX) / MaxHorizontalSpeed;
 			
