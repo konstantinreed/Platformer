@@ -10,6 +10,7 @@ namespace GameLibrary
 		Idle,
 		Running,
 		Jumping,
+		WallJumping,
 		Falling,
 		Landing
 	}
@@ -34,10 +35,11 @@ namespace GameLibrary
 			Animation == PlayerAnimation.Running ||
 			Animation == PlayerAnimation.Landing;
 
-		public bool DoneJumpingConditions =>
-			IsGrounded &&
-			Animation != PlayerAnimation.Jumping &&
-			Animation != PlayerAnimation.Falling;
+		public bool IsWalking =>
+			Animation == PlayerAnimation.Idle ||
+			Animation == PlayerAnimation.Running;
+
+		public bool DoneJumpingConditions => IsGrounded && IsLanded;
 
 		public bool DoneWallJumpingConditions =>
 			!IsGrounded &&
@@ -48,6 +50,13 @@ namespace GameLibrary
 			Animation == PlayerAnimation.Jumping &&
 			Step == JumpedStep + PhysicsPlayer.JumpingReinforcement;
 
+		public bool DoneHorizontalCorrectionConditions =>
+			Animation == PlayerAnimation.Jumping ||
+			(
+				Animation == PlayerAnimation.WallJumping &&
+				Step > JumpedStep + PhysicsPlayer.WallJumpingUnalteredSteps
+			);
+
 		public bool DoneFallingConditions => !IsGrounded;
 
 		public bool DoneLandingConditions =>
@@ -55,7 +64,7 @@ namespace GameLibrary
 		    (
 			    Animation == PlayerAnimation.Falling ||
 			    (
-				    Animation == PlayerAnimation.Jumping &&
+				    (Animation == PlayerAnimation.Jumping || Animation == PlayerAnimation.WallJumping) &&
 				    Step > JumpedStep + PhysicsPlayer.JumpingSteps
 			    )
 		    );
@@ -101,6 +110,7 @@ namespace GameLibrary
 		public const float ReinforcementVerticalSpeed = 13f;
 		internal const int JumpingSteps = 4;
 		internal const int JumpingReinforcement = 4;
+		internal const int WallJumpingUnalteredSteps = 13;
 		internal const int LandingSteps = 1;
 
 		private readonly PlatformSensor groundSendor;
@@ -172,7 +182,7 @@ namespace GameLibrary
 					velocityY = MaxVerticalSpeed;
 					State.JumpedStep = State.Step;
 				} else if (State.DoneWallJumpingConditions) {
-					State.Animation = PlayerAnimation.Jumping;
+					State.Animation = PlayerAnimation.WallJumping;
 					velocityY = MaxVerticalSpeed;
 					var signX = leftWallSendor.IsActive ? 1f : -1f;
 					velocityX = signX * MaxHorizontalSpeed;
@@ -195,13 +205,13 @@ namespace GameLibrary
 			var inputX = Input.IsLeftPressed != Input.IsRightPressed ? (Input.IsLeftPressed ? -1f : 1f) : 0f;
 			if (State.IsLanded) {
 				velocityX = inputX * MaxHorizontalSpeed;
-			} else {
+			} else if (State.DoneHorizontalCorrectionConditions) {
 				velocityX += inputX * MaxHorizontalSpeed * HorizontalCorrectionInAir;
 				velocityX = Mathf.Clamp(velocityX, -MaxHorizontalSpeed, MaxHorizontalSpeed);
 			}
 			var velocityXFactor = Mathf.Abs(velocityX) / MaxHorizontalSpeed;
 			
-			if (State.DoneLandingFinishConditions) {
+			if (State.IsWalking || State.DoneLandingFinishConditions) {
 				State.Animation = velocityXFactor > 0.01f ? PlayerAnimation.Running : PlayerAnimation.Idle;
 			}
 
