@@ -111,7 +111,7 @@ namespace GameLibrary
 		internal const int JumpingSteps = 4;
 		internal const int JumpingReinforcement = 4;
 		internal const int WallJumpUnalteredSteps = 13;
-		internal const int LandingSteps = 3;
+		internal const int LandingSteps = 1;
 
 		private readonly PlatformSensor groundSendor;
 		private readonly PlatformSensor leftWallSendor;
