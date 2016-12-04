@@ -55,6 +55,7 @@ namespace Scripts
 				animator.SetBool("IsJumping", physicsPlayer.State.Animation == PlayerAnimation.Jumping);
 				animator.SetBool("IsWallJumping", physicsPlayer.State.Animation == PlayerAnimation.WallJumping);
 				animator.SetBool("IsFalling", physicsPlayer.State.Animation == PlayerAnimation.Falling);
+				animator.SetBool("IsWallFalling", physicsPlayer.State.Animation == PlayerAnimation.WallFalling);
 				animator.SetBool("IsLanding", physicsPlayer.State.Animation == PlayerAnimation.Landing);
 			}
 		}

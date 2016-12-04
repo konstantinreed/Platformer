@@ -12,6 +12,7 @@ namespace GameLibrary
 		Jumping,
 		WallJumping,
 		Falling,
+		WallFalling,
 		Landing
 	}
 
@@ -54,12 +55,15 @@ namespace GameLibrary
 		public bool DoneHorizontalCorrectionConditions =>
 			Step >= HorizontalCorrectionStep;
 
-		public bool DoneFallingConditions => !IsGrounded;
+		public bool DoneFallingConditions => !IsGrounded && !IsClingedWall;
+
+		public bool DoneWallFallingConditions => !IsGrounded && IsClingedWall;
 
 		public bool DoneLandingConditions =>
 			IsGrounded &&
 			(
 				Animation == PlayerAnimation.Falling ||
+				Animation == PlayerAnimation.WallFalling ||
 				(
 					(Animation == PlayerAnimation.Jumping || Animation == PlayerAnimation.WallJumping) &&
 					Step > JumpedStep + PhysicsPlayer.JumpingSteps
@@ -108,6 +112,7 @@ namespace GameLibrary
 		private const float ReinforcementVerticalSpeed = 13f;
 		private const float WallJumpVerticalSpeed = 19f;
 		private const float WallJumpHorizontalSpeed = 7f;
+		private const float MinWallClingedVerticalSpeed = -5f;
 		internal const int JumpingSteps = 4;
 		internal const int JumpingReinforcement = 4;
 		internal const int WallJumpUnalteredSteps = 13;
@@ -172,8 +177,9 @@ namespace GameLibrary
 			State.IsGrounded = groundSendor.IsActive;
 			State.IsClingedWall = leftWallSendor.IsActive || rightWallSendor.IsActive;
 
+			var minVerticalSpeed = State.Animation == PlayerAnimation.WallFalling ? MinWallClingedVerticalSpeed : MinVerticalSpeed;
 			var velocityX = Body.LinearVelocity.X;
-			var velocityY = Mathf.Clamp(Body.LinearVelocity.Y, MinVerticalSpeed, MaxVerticalSpeed);
+			var velocityY = Mathf.Clamp(Body.LinearVelocity.Y, minVerticalSpeed, MaxVerticalSpeed);
 			
 			// Vertical velocity
 			if (Input.IsJumpJustPressed) {
@@ -191,8 +197,12 @@ namespace GameLibrary
 					State.HorizontalCorrectionStep = State.JumpedStep + WallJumpUnalteredSteps;
 				}
 			}
-			if (velocityY <= 0 && State.DoneFallingConditions) {
-				State.Animation = PlayerAnimation.Falling;
+			if (velocityY <= 0) {
+				if (State.DoneFallingConditions) {
+					State.Animation = PlayerAnimation.Falling;
+				} else if (State.DoneWallFallingConditions) {
+					State.Animation = PlayerAnimation.WallFalling;
+				}
 			}
 			if (State.DoneLandingConditions) {
 				State.Animation = PlayerAnimation.Landing;
