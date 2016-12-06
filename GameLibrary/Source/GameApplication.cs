@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameLibrary.Source.SerializableFormats;
+using System;
 
 namespace GameLibrary
 {
@@ -13,13 +14,10 @@ namespace GameLibrary
 		public int CurrentStep { get; private set; }
 		public int CurrentSimulationStep { get; private set; }
 
-		public GameApplication()
+		public GameApplication(LevelFormat levelFormat)
 		{
 			PhysicsSystem = new PhysicsSystem();
-
-			Level = new Level(this);
-			Level.Load();
-
+			Level = new Level(this, levelFormat);
 			ClientManager = new ClientManager(this, OnInput, Settings.PlayersCount);
 
 			startDateTime = DateTime.Now;
@@ -63,7 +61,7 @@ namespace GameLibrary
 					client.Input = client.InputStates[currentStep];
 				}
 
-				// TODO: Жуткая залепа для ClientSidePreesiction. Надо сделать ротацию состояний для объектов
+				// TODO: Жуткая залепа для ClientSidePrediction. Надо сделать ротацию состояний для объектов
 				//требующих синхронизации
 				foreach (var physicsObject in PhysicsSystem.Objects) {
 					var syncObject = physicsObject as PhysicsPlayer;
