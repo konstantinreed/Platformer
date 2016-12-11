@@ -12,7 +12,7 @@ namespace Scripts
 		private PhysicsPlayer physicsPlayer;
 		private Animator animator;
 		private bool isFacingRight = true;
-
+		
 		public GameObject AnimatorGameObject;
 
 		public void Start()
@@ -32,6 +32,9 @@ namespace Scripts
 				Flip();
 			}
 
+			var angle = physicsPlayer.State.Rotation * Mathf.RadToDeg;
+			transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+
 			var velocityXFactor = Mathf.Abs(velocity.X) / PhysicsPlayer.MaxHorizontalSpeed;
 			var velocityYFactor =
 				velocity.Y /
@@ -40,6 +43,7 @@ namespace Scripts
 			if (animator != null) {
 				animator.SetFloat("VelocityX", velocityXFactor);
 				animator.SetFloat("VelocityY", velocityYFactor);
+				animator.SetFloat("Rotation", angle);
 				animator.SetFloat("LandingVelocityYFactor", physicsPlayer.State.LandingVelocityYFactor);
 				animator.SetBool("IsGroundSensorActive", physicsPlayer.State.IsGrounded);
 				animator.SetBool("IsWallSensorActive", physicsPlayer.State.IsClingedWall);

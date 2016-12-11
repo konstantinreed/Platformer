@@ -107,6 +107,12 @@ namespace GameLibrary
 			return angle;
 		}
 
+		public static float WrapRadians(float radians)
+		{
+			radians = (radians + Mathf.Pi) % Mathf.TwoPi;
+			return (radians < 0f ? radians + Mathf.TwoPi : radians) - Mathf.Pi;
+		}
+
 		public static float Sqr(float x)
 		{
 			return x * x;

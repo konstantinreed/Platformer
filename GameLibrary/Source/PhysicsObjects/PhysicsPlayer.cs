@@ -24,6 +24,7 @@ namespace GameLibrary
 		public PlayerAnimation Animation;
 		public Vector2 Position;
 		public Vector2 Velocity;
+		public float Rotation;
 		public bool IsGrounded;
 		public bool IsClingedWall;
 		public int JumpedStep;
@@ -89,6 +90,9 @@ namespace GameLibrary
 		private const float GroundSensorY = 0f;
 		private const float GroundSensorWidth = 0.25f;
 		private const float GroundSensorHeight = 0.125f;
+		private const float GroundScopeSensorXOffset = 0.11f;
+		private const float GroundScopeSensorYFrom = 0.03f;
+		private const float GroundScopeSensorYTo = -0.11f;
 		private const float LeftWallSensorX = -0.3f;
 		private const float LeftWallSensorY = 0.3f;
 		private const float LeftWallSensorWidth = 0.125f;
@@ -118,9 +122,9 @@ namespace GameLibrary
 		internal const int WallJumpUnalteredSteps = 13;
 		internal const int LandingSteps = 1;
 
-		private readonly PlatformSensor groundSendor;
-		private readonly PlatformSensor leftWallSendor;
-		private readonly PlatformSensor rightWallSendor;
+		private readonly PlatformSensor groundSensor;
+		private readonly PlatformSensor leftWallSensor;
+		private readonly PlatformSensor rightWallSensor;
 
 		public ClientInstance Owner { get; set; }
 		public InputState Input => Owner.Input;
@@ -146,36 +150,47 @@ namespace GameLibrary
 			};
 			Body.CreateFixture(footShape);
 
-			groundSendor = new PlatformSensor(
+			groundSensor = new PlatformSensor(
 				physicsSystem.World,
-				GroundSensorWidth,
-				GroundSensorHeight,
-				GroundSensorX,
-				GroundSensorY
+				new Vector2(GroundSensorWidth, GroundSensorHeight),
+				new Vector2(GroundSensorX, GroundSensorY),
+				new[] {
+					new PlatformSensor.ScopeSensorData {
+						From = new Vector2(-GroundScopeSensorXOffset, GroundScopeSensorYFrom),
+						To = new Vector2(-GroundScopeSensorXOffset, GroundScopeSensorYTo)
+					},
+					new PlatformSensor.ScopeSensorData {
+						From = new Vector2(GroundScopeSensorXOffset, GroundScopeSensorYFrom),
+						To = new Vector2(GroundScopeSensorXOffset, GroundScopeSensorYTo)
+					}
+				}
 			);
-			leftWallSendor = new PlatformSensor(
+			leftWallSensor = new PlatformSensor(
 				physicsSystem.World,
-				LeftWallSensorWidth,
-				LeftWallSensorHeight,
-				LeftWallSensorX,
-				LeftWallSensorY
+				new Vector2(LeftWallSensorWidth, LeftWallSensorHeight),
+				new Vector2(LeftWallSensorX, LeftWallSensorY)
 			);
-			rightWallSendor = new PlatformSensor(
+			rightWallSensor = new PlatformSensor(
 				physicsSystem.World,
-				RightWallSensorWidth,
-				RightWallSensorHeight,
-				RightWallSensorX,
-				RightWallSensorY
+				new Vector2(RightWallSensorWidth, RightWallSensorHeight),
+				new Vector2(RightWallSensorX, RightWallSensorY)
 			);
 		}
 
 		public override void FixedUpdate(float delta)
 		{
-			groundSendor.Update(Body.Position);
-			leftWallSendor.Update(Body.Position);
-			rightWallSendor.Update(Body.Position);
-			State.IsGrounded = groundSendor.IsActive;
-			State.IsClingedWall = leftWallSendor.IsActive || rightWallSendor.IsActive;
+			groundSensor.Update(Body.Position);
+			if (!groundSensor.IsActive) {
+				leftWallSensor.Update(Body.Position);
+				rightWallSensor.Update(Body.Position);
+			} else {
+				leftWallSensor.Deactivate();
+				rightWallSensor.Deactivate();
+			}
+
+			State.IsGrounded = groundSensor.IsActive;
+			State.Rotation = groundSensor.Radians;
+			State.IsClingedWall = leftWallSensor.IsActive || rightWallSensor.IsActive;
 
 			var minVerticalSpeed = State.Animation == PlayerAnimation.WallFalling ? MinWallClingedVerticalSpeed : MinVerticalSpeed;
 			var velocityX = Body.LinearVelocity.X;
@@ -191,7 +206,7 @@ namespace GameLibrary
 				} else if (State.DoneWallJumpingConditions) {
 					State.Animation = PlayerAnimation.WallJumping;
 					velocityY = WallJumpVerticalSpeed;
-					var signX = leftWallSendor.IsActive ? 1f : -1f;
+					var signX = leftWallSensor.IsActive ? 1f : -1f;
 					velocityX = signX * WallJumpHorizontalSpeed;
 					State.JumpedStep = State.Step;
 					State.HorizontalCorrectionStep = State.JumpedStep + WallJumpUnalteredSteps;
@@ -221,7 +236,7 @@ namespace GameLibrary
 			} else if (State.DoneHorizontalCorrectionConditions) {
 				velocityX += inputX * MaxHorizontalSpeed * HorizontalCorrectionInAir;
 				velocityX = Mathf.Clamp(velocityX, -MaxHorizontalSpeed, MaxHorizontalSpeed);
-				if ((leftWallSendor.IsActive && velocityX < 0.01f) || (rightWallSendor.IsActive && velocityX > 0.01f)) {
+				if ((leftWallSensor.IsActive && velocityX < 0.01f) || (rightWallSensor.IsActive && velocityX > 0.01f)) {
 					velocityX = 0f;
 				}
 			}
