@@ -14,19 +14,24 @@ namespace GameLibrary
 			public Vector2 To;
 		}
 
+		public class ScopeSensor
+		{
+			public bool IsActive;
+			public float Radians;
+			public float Fraction;
+		}
+
 		private readonly World world;
 		private readonly Vector2 a;
 		private readonly Vector2 b;
 		private readonly PolygonShape sensorShape;
 		private readonly ScopeSensorData[] scopeSensorsData;
-		private readonly float[] scopeRadians;
 		private Transform sensorTransform;
 		private Rot sensorRotation = new Rot(0f);
 		private int currentScopeIndex;
-		private float currentScopeFraction;
 
 		public bool IsActive { get; private set; }
-		public float Radians { get; private set; }
+		public ScopeSensor[] ScopeSensors { get; private set; }
 
 		public PlatformSensor(World world, Vector2 size, Vector2 offset, ScopeSensorData[] scopeSensorsData = null)
 		{
@@ -46,14 +51,21 @@ namespace GameLibrary
 
 			if (scopeSensorsData != null && scopeSensorsData.Length > 0) {
 				this.scopeSensorsData = scopeSensorsData;
-				scopeRadians = new float[scopeSensorsData.Length];
+				ScopeSensors = new ScopeSensor[scopeSensorsData.Length];
+				for (int i = 0; i < scopeSensorsData.Length; i++) {
+					ScopeSensors[i] = new ScopeSensor();
+				}
 			}
 		}
 
 		public void Update(Vector2 position)
 		{
 			IsActive = false;
-			Radians = 0f;
+			if (scopeSensorsData != null) {
+				for (int i = 0; i < scopeSensorsData.Length; i++) {
+					ScopeSensors[i].IsActive = false;
+				}
+			}
 
 			var aabb = new AABB(a + position, b + position);
 			sensorTransform = new Transform(ref position, ref sensorRotation);
@@ -62,29 +74,63 @@ namespace GameLibrary
 			if (!IsActive || scopeSensorsData == null) {
 				return;
 			}
-			currentScopeIndex = 0;
-			for (var i = 0; i < scopeSensorsData.Length; i++) {
-				currentScopeFraction = float.MaxValue;
-				world.RayCast(TestPlatformCollision, position + scopeSensorsData[i].From, position + scopeSensorsData[i].To);
-				if (currentScopeFraction < float.MaxValue) {
-					++currentScopeIndex;
-				}
+			for (currentScopeIndex = 0; currentScopeIndex < scopeSensorsData.Length; currentScopeIndex++) {
+				world.RayCast(
+					TestPlatformCollision,
+					position + scopeSensorsData[currentScopeIndex].From,
+					position + scopeSensorsData[currentScopeIndex].To
+				);
 			}
-
-			if (currentScopeIndex == 0) {
-				return;
-			}
-			var radiansSumm = 0f;
-			for (var i = 0; i < currentScopeIndex; i++) {
-				radiansSumm += scopeRadians[i];
-			}
-			Radians = radiansSumm / currentScopeIndex - Mathf.HalfPi;
 		}
 
 		public void Deactivate()
 		{
 			IsActive = false;
-			Radians = 0f;
+			if (scopeSensorsData != null) {
+				for (int i = 0; i < scopeSensorsData.Length; i++) {
+					ScopeSensors[i].IsActive = false;
+				}
+			}
+		}
+
+		public float GetAverageRadians(float defaultRadians = 0f)
+		{
+			if (scopeSensorsData == null) {
+				return defaultRadians;
+			}
+
+			var scopesCount = 0f;
+			var radiansSumm = 0f;
+			for (var i = 0; i < ScopeSensors.Length; i++) {
+				var scopeSensor = ScopeSensors[i];
+				if (!scopeSensor.IsActive) {
+					continue;
+				}
+
+				radiansSumm += scopeSensor.Radians;
+				++scopesCount;
+			}
+			return scopesCount > 0 ? radiansSumm / scopesCount : defaultRadians;
+		}
+
+		public float GetMinimalFraction(float defaultFraction = 1f)
+		{
+			if (scopeSensorsData == null) {
+				return defaultFraction;
+			}
+
+			var scopesCount = 0f;
+			var minimalFraction = float.MaxValue;
+			for (var i = 0; i < ScopeSensors.Length; i++) {
+				var scopeSensor = ScopeSensors[i];
+				if (!scopeSensor.IsActive || minimalFraction < scopeSensor.Fraction) {
+					continue;
+				}
+
+				minimalFraction = scopeSensor.Fraction;
+				++scopesCount;
+			}
+			return scopesCount > 0 ? minimalFraction : defaultFraction;
 		}
 		
 		private bool TestPlatformCollision(Fixture fixture)
@@ -111,9 +157,11 @@ namespace GameLibrary
 				return -1f; // Ignore fixture and continue platform searching
 			}
 
-			if (fraction < currentScopeFraction) {
-				currentScopeFraction = fraction;
-				scopeRadians[currentScopeIndex] = Mathf.Atan2(normal);
+			var scopeSensor = ScopeSensors[currentScopeIndex];
+			if (!scopeSensor.IsActive || fraction < scopeSensor.Fraction) {
+				scopeSensor.IsActive = true;
+				scopeSensor.Fraction = fraction;
+				scopeSensor.Radians = Mathf.Atan2(normal);
 			}
 			return 1f; // Continue platform searching
 		}

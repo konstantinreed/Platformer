@@ -11,15 +11,18 @@ namespace Scripts
 
 		private PhysicsPlayer physicsPlayer;
 		private Animator animator;
+		private Quaternion initialRotation;
 		private bool isFacingRight = true;
 		
 		public GameObject AnimatorGameObject;
+		public Transform RotationTransform;
 
 		public void Start()
 		{
 			var unityApplication = UnityApplication.Instance;
 			physicsPlayer = unityApplication.Client.Player;
 			animator = AnimatorGameObject != null ? AnimatorGameObject.GetComponent<Animator>() : null;
+			initialRotation = RotationTransform != null ? RotationTransform.rotation : Quaternion.identity;
 		}
 
 		public void Update()
@@ -33,7 +36,7 @@ namespace Scripts
 			}
 
 			var angle = physicsPlayer.State.Rotation * Mathf.RadToDeg;
-			transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+			RotationTransform.rotation = Quaternion.AngleAxis(angle, Vector3.forward) * initialRotation;
 
 			var velocityXFactor = Mathf.Abs(velocity.X) / PhysicsPlayer.MaxHorizontalSpeed;
 			var velocityYFactor =

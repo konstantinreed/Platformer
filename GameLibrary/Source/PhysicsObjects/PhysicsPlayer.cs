@@ -90,9 +90,10 @@ namespace GameLibrary
 		private const float GroundSensorY = 0f;
 		private const float GroundSensorWidth = 0.25f;
 		private const float GroundSensorHeight = 0.125f;
-		private const float GroundScopeSensorXOffset = 0.11f;
-		private const float GroundScopeSensorYFrom = 0.03f;
-		private const float GroundScopeSensorYTo = -0.11f;
+		private const float GroundScopeSensorXOffset = 0.21f;
+		private const float GroundScopeSensorYFrom = 0.11f;
+		private const float GroundScopeSensorYTo = -0.5f;
+		private const float GroundSensorContactFraction = 0.53f;
 		private const float LeftWallSensorX = -0.3f;
 		private const float LeftWallSensorY = 0.3f;
 		private const float LeftWallSensorWidth = 0.125f;
@@ -125,6 +126,9 @@ namespace GameLibrary
 		private readonly PlatformSensor groundSensor;
 		private readonly PlatformSensor leftWallSensor;
 		private readonly PlatformSensor rightWallSensor;
+		private readonly float[] scopeRadiansBuffer = new float[3];
+
+		private int scopeRadiansBufferLength;
 
 		public ClientInstance Owner { get; set; }
 		public InputState Input => Owner.Input;
@@ -160,6 +164,10 @@ namespace GameLibrary
 						To = new Vector2(-GroundScopeSensorXOffset, GroundScopeSensorYTo)
 					},
 					new PlatformSensor.ScopeSensorData {
+						From = new Vector2(0f, GroundScopeSensorYFrom),
+						To = new Vector2(0f, GroundScopeSensorYTo)
+					},
+					new PlatformSensor.ScopeSensorData {
 						From = new Vector2(GroundScopeSensorXOffset, GroundScopeSensorYFrom),
 						To = new Vector2(GroundScopeSensorXOffset, GroundScopeSensorYTo)
 					}
@@ -189,8 +197,9 @@ namespace GameLibrary
 			}
 
 			State.IsGrounded = groundSensor.IsActive;
-			State.Rotation = groundSensor.Radians;
 			State.IsClingedWall = leftWallSensor.IsActive || rightWallSensor.IsActive;
+			State.Rotation = groundSensor.IsActive ? groundSensor.GetAverageRadians(Mathf.HalfPi) - Mathf.HalfPi : 0f;
+			var minimalGroundFraction = groundSensor.IsActive ? groundSensor.GetMinimalFraction(1f) : 1f;
 
 			var minVerticalSpeed = State.Animation == PlayerAnimation.WallFalling ? MinWallClingedVerticalSpeed : MinVerticalSpeed;
 			var velocityX = Body.LinearVelocity.X;
@@ -227,10 +236,42 @@ namespace GameLibrary
 			if (Input.IsJumpPressed && Input.JumpPressedStep == State.JumpedStep && State.DoneJumpingReinforcementConditions) {
 				velocityY = ReinforcementVerticalSpeed;
 			}
+			var requiredGravityResistance = false;
+			if (State.IsLanded && (velocityY > 0 || minimalGroundFraction <= GroundSensorContactFraction)) {
+				velocityY = 0f;
+				requiredGravityResistance = true;
+			}
 			var velocityYFactor = velocityY / (velocityY >= 0 ? MaxVerticalSpeed : -MinVerticalSpeed);
 
 			// Horizontal velocity
-			var inputX = Input.IsLeftPressed != Input.IsRightPressed ? (Input.IsLeftPressed ? -1f : 1f) : 0f;
+			var inputX = Input.IsLeftPressed != Input.IsRightPressed ? (Input.IsLeftPressed ? -1 : 1) : 0;
+			var rotationX = 0f;
+			if (groundSensor.IsActive && inputX != 0) {
+				var lastScope = groundSensor.ScopeSensors[inputX == -1 ? 0 : 2];
+				var centralScope = groundSensor.ScopeSensors[1];
+				var firstScope = groundSensor.ScopeSensors[inputX == -1 ? 2 : 0];
+				if (lastScope.IsActive && centralScope.IsActive) {
+					if (inputX == -1) {
+						if (lastScope.Radians > centralScope.Radians) {
+							rotationX = (lastScope.Radians > firstScope.Radians ? lastScope.Radians : firstScope.Radians) - Mathf.HalfPi;
+						} else {
+							rotationX = centralScope.Radians - Mathf.HalfPi;
+						}
+					} else {
+						if (lastScope.Radians < centralScope.Radians) {
+							rotationX = (lastScope.Radians < firstScope.Radians ? lastScope.Radians : firstScope.Radians) - Mathf.HalfPi;
+						} else {
+							rotationX = centralScope.Radians - Mathf.HalfPi;
+						}
+					}
+				} else if (centralScope.IsActive) {
+					rotationX = centralScope.Radians - Mathf.HalfPi;
+				} else if (lastScope.IsActive) {
+					rotationX = lastScope.Radians - Mathf.HalfPi;
+				} else {
+					rotationX = State.Rotation;
+				}
+			}
 			if (State.IsLanded) {
 				velocityX = inputX * MaxHorizontalSpeed;
 			} else if (State.DoneHorizontalCorrectionConditions) {
@@ -247,8 +288,15 @@ namespace GameLibrary
 			}
 
 			// Apply physics
-			Body.LinearVelocity = new Vector2(velocityX, velocityY);
 			Body.GravityScale = State.IsLanded ? GroundGravityScale : GravityScale;
+			var directionX = Vector2.Normalize(new Vector2(Mathf.Cos(rotationX), Mathf.Sin(rotationX)));
+			var forceX = directionX * velocityX;
+			var forceY = Vector2.UnitY * velocityY;
+			var gravityResistance =
+				requiredGravityResistance ?
+				physicsSystem.World.Gravity * Body.GravityScale * -Settings.SimulationStepF :
+				Vector2.Zero;
+			Body.LinearVelocity = forceX + forceY + gravityResistance;
 			
 			if (velocityYFactor <= -0.01f) {
 				State.LastFallingVelocityYFactor = velocityYFactor;
