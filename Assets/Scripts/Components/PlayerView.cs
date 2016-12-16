@@ -7,7 +7,7 @@ namespace Scripts
 
 	public class PlayerView : MonoBehaviour
 	{
-		private const float FlipTolerance = 0.05f;
+		private const float FlipTolerance = 0.5f;
 
 		private PhysicsPlayer physicsPlayer;
 		private Animator animator;

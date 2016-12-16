@@ -93,7 +93,7 @@ namespace GameLibrary
 		private const float GroundScopeSensorXOffset = 0.21f;
 		private const float GroundScopeSensorYFrom = 0.11f;
 		private const float GroundScopeSensorYTo = -0.5f;
-		private const float GroundSensorContactFraction = 0.53f;
+		private const float GroundSensorContactFraction = 0.19f;
 		private const float LeftWallSensorX = -0.3f;
 		private const float LeftWallSensorY = 0.3f;
 		private const float LeftWallSensorWidth = 0.125f;
@@ -105,7 +105,6 @@ namespace GameLibrary
 		// Physics consts
 		private const float Mass = 70f;
 		private const float GravityScale = 5.5f;
-		private const float GroundGravityScale = 12.1f;
 		private const float Friction = 0f;
 		private const float Restitution = 0f;
 		// Dynamics consts
@@ -126,9 +125,6 @@ namespace GameLibrary
 		private readonly PlatformSensor groundSensor;
 		private readonly PlatformSensor leftWallSensor;
 		private readonly PlatformSensor rightWallSensor;
-		private readonly float[] scopeRadiansBuffer = new float[3];
-
-		private int scopeRadiansBufferLength;
 
 		public ClientInstance Owner { get; set; }
 		public InputState Input => Owner.Input;
@@ -247,30 +243,37 @@ namespace GameLibrary
 			var inputX = Input.IsLeftPressed != Input.IsRightPressed ? (Input.IsLeftPressed ? -1 : 1) : 0;
 			var rotationX = 0f;
 			if (groundSensor.IsActive && inputX != 0) {
-				var lastScope = groundSensor.ScopeSensors[inputX == -1 ? 0 : 2];
+				var forwardScope = groundSensor.ScopeSensors[inputX == -1 ? 0 : 2];
 				var centralScope = groundSensor.ScopeSensors[1];
-				var firstScope = groundSensor.ScopeSensors[inputX == -1 ? 2 : 0];
-				if (lastScope.IsActive && centralScope.IsActive) {
+				var backwardScope = groundSensor.ScopeSensors[inputX == -1 ? 2 : 0];
+				if (forwardScope.IsActive && centralScope.IsActive) {
 					if (inputX == -1) {
-						if (lastScope.Radians > centralScope.Radians) {
-							rotationX = (lastScope.Radians > firstScope.Radians ? lastScope.Radians : firstScope.Radians) - Mathf.HalfPi;
-						} else {
-							rotationX = centralScope.Radians - Mathf.HalfPi;
-						}
+						rotationX =
+							forwardScope.Radians >= centralScope.Radians ?
+							(
+								forwardScope.Radians > backwardScope.Radians || !backwardScope.IsActive ?
+								forwardScope.Radians :
+								backwardScope.Radians
+							) :
+							centralScope.Radians;
 					} else {
-						if (lastScope.Radians < centralScope.Radians) {
-							rotationX = (lastScope.Radians < firstScope.Radians ? lastScope.Radians : firstScope.Radians) - Mathf.HalfPi;
-						} else {
-							rotationX = centralScope.Radians - Mathf.HalfPi;
-						}
+						rotationX =
+							forwardScope.Radians <= centralScope.Radians ?
+							(
+								forwardScope.Radians < backwardScope.Radians || !backwardScope.IsActive ?
+								forwardScope.Radians :
+								backwardScope.Radians
+							) :
+							centralScope.Radians;
 					}
 				} else if (centralScope.IsActive) {
-					rotationX = centralScope.Radians - Mathf.HalfPi;
-				} else if (lastScope.IsActive) {
-					rotationX = lastScope.Radians - Mathf.HalfPi;
+					rotationX = centralScope.Radians;
+				} else if (forwardScope.IsActive) {
+					rotationX = forwardScope.Radians;
 				} else {
-					rotationX = State.Rotation;
+					rotationX = State.Rotation + Mathf.HalfPi;
 				}
+				rotationX -= Mathf.HalfPi;
 			}
 			if (State.IsLanded) {
 				velocityX = inputX * MaxHorizontalSpeed;
@@ -288,15 +291,11 @@ namespace GameLibrary
 			}
 
 			// Apply physics
-			Body.GravityScale = State.IsLanded ? GroundGravityScale : GravityScale;
+			Body.GravityScale = requiredGravityResistance ? 0f : GravityScale;
 			var directionX = Vector2.Normalize(new Vector2(Mathf.Cos(rotationX), Mathf.Sin(rotationX)));
 			var forceX = directionX * velocityX;
 			var forceY = Vector2.UnitY * velocityY;
-			var gravityResistance =
-				requiredGravityResistance ?
-				physicsSystem.World.Gravity * Body.GravityScale * -Settings.SimulationStepF :
-				Vector2.Zero;
-			Body.LinearVelocity = forceX + forceY + gravityResistance;
+			Body.LinearVelocity = forceX + forceY;
 			
 			if (velocityYFactor <= -0.01f) {
 				State.LastFallingVelocityYFactor = velocityYFactor;
