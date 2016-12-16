@@ -179,7 +179,7 @@ namespace Scripts
 						}
 					},
 					new PlatformFormat() {
-						Position = new VectorFormat(0.39f, -0.09f),
+						Position = new VectorFormat(0.383884f, -0.090991f),
 						Vertices = new List<VectorFormat>() {
 							new VectorFormat(0.883883f, -1.59099f),
 							new VectorFormat(1.59099f, -0.883883f),
