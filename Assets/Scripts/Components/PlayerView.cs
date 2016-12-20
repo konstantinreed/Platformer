@@ -8,6 +8,7 @@ namespace Scripts
 	public class PlayerView : MonoBehaviour
 	{
 		private const float FlipTolerance = 0.5f;
+		private const float RotationSmoothing = 0.5f;
 
 		private PhysicsPlayer physicsPlayer;
 		private Animator animator;
@@ -35,7 +36,7 @@ namespace Scripts
 				Flip();
 			}
 
-			var angle = physicsPlayer.State.Rotation * Mathf.RadToDeg;
+			var angle = Mathf.Lerp(RotationSmoothing, physicsPlayer.State.Rotation, 0f) * Mathf.RadToDeg;
 			RotationTransform.rotation = Quaternion.AngleAxis(angle, Vector3.forward) * initialRotation;
 
 			var velocityXFactor = Mathf.Abs(velocity.X) / PhysicsPlayer.MaxHorizontalSpeed;
