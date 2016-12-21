@@ -1,0 +1,159 @@
+fileFormatVersion: 2
+guid: 82685145ba5e3024c91efd0e93b5241a
+timeCreated: 1482327471
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: arm_end
+    100002: arm_end_2
+    100004: arm_L
+    100006: arm_R
+    100008: collarbone
+    100010: Cube
+    100012: Cube_1
+    100014: Cube_2
+    100016: Cube_3
+    100018: Cube_4
+    100020: Cube_7
+    100022: Cube_8
+    100024: elbow_L
+    100026: elbow_R
+    100028: feet_end
+    100030: feet_end_2
+    100032: had_ctrl
+    100034: head_end
+    100036: knee_L
+    100038: knee_R
+    100040: leg_L
+    100042: leg_L_2
+    100044: leg_L_Pole
+    100046: leg_R
+    100048: leg_R_2
+    100050: leg_R_Pole
+    100052: neck
+    100054: Null_1
+    100056: Null_2
+    100058: pelvis
+    100060: pelvis_ctrl
+    100062: //RootNode
+    100064: Root
+    100066: shoulder_L
+    100068: shoulder_L_Pole
+    100070: shoulder_R
+    100072: shoulder_R_Pole
+    400000: arm_end
+    400002: arm_end_2
+    400004: arm_L
+    400006: arm_R
+    400008: collarbone
+    400010: Cube
+    400012: Cube_1
+    400014: Cube_2
+    400016: Cube_3
+    400018: Cube_4
+    400020: Cube_7
+    400022: Cube_8
+    400024: elbow_L
+    400026: elbow_R
+    400028: feet_end
+    400030: feet_end_2
+    400032: had_ctrl
+    400034: head_end
+    400036: knee_L
+    400038: knee_R
+    400040: leg_L
+    400042: leg_L_2
+    400044: leg_L_Pole
+    400046: leg_R
+    400048: leg_R_2
+    400050: leg_R_Pole
+    400052: neck
+    400054: Null_1
+    400056: Null_2
+    400058: pelvis
+    400060: pelvis_ctrl
+    400062: //RootNode
+    400064: Root
+    400066: shoulder_L
+    400068: shoulder_L_Pole
+    400070: shoulder_R
+    400072: shoulder_R_Pole
+    4300000: Cube_1
+    4300002: Cube_2
+    4300004: Cube_3
+    4300006: Cube_4
+    4300008: Cube_7
+    4300010: Cube_8
+    7400000: Main
+    9500000: //RootNode
+    13700000: Cube_1
+    13700002: Cube_2
+    13700004: Cube_3
+    13700006: Cube_4
+    13700008: Cube_7
+    13700010: Cube_8
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
