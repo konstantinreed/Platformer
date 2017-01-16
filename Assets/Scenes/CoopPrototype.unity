@@ -364,6 +364,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 314628192}
   - 114: {fileID: 314628193}
+  - 114: {fileID: 314628194}
   m_Layer: 0
   m_Name: Application
   m_TagString: Application
@@ -395,6 +396,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf0ad49a5fa34d24782cb9d23221e981, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &314628194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 314628191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81e6c8846b5d39c45ae54ac76f5be748, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &619648742
 GameObject:
   m_ObjectHideFlags: 0
@@ -419,7 +431,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 619648742}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 12.29, y: 2.68, z: 0}
+  m_LocalPosition: {x: 12.29, y: 4, z: 0}
   m_LocalScale: {x: 20, y: 1, z: 0.01}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
