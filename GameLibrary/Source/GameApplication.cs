@@ -1,77 +1,75 @@
-﻿using GameLibrary.Source.SerializableFormats;
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 namespace GameLibrary
 {
 	public class GameApplication
 	{
-		private DateTime startDateTime;
+		private DateTime? startDateTime;
 		private int lastSimulationStep;
 
-		public PhysicsSystem PhysicsSystem { get; private set; }
-		public Level Level { get; private set; }
-		public ClientManager ClientManager { get; private set; }
+		internal GamePhysics Physics { get; } = new GamePhysics();
+		internal List<Player> Players { get; } = new List<Player>();
+		internal float CurrentStepProgress { get; private set; }
+
 		public int CurrentStep { get; private set; }
-		public int CurrentSimulationStep { get; private set; }
 
-		public GameApplication(LevelFormat levelFormat)
+		public GameApplication(Level level)
 		{
-			PhysicsSystem = new PhysicsSystem();
-			Level = new Level(this, levelFormat);
-			ClientManager = new ClientManager(this, OnInput, Settings.PlayersCount);
-
-			startDateTime = DateTime.Now;
+			The.Application = this;
+            Physics.LoadLevel(level);
 		}
 
-		private void OnInput(ClientInstance client, InputState state)
+		public Player SpawnPlayer()
 		{
-			var currentStep = client.InputStates.CurrentStep;
-			var rewindResult = client.InputStates.RewindToStep(state);
+			var player = new Player(Physics.SpawnPlayer());
+			Players.Add(player);
+			return player;
+		}
 
-			if (currentStep != client.InputStates.CurrentStep) {
-				foreach (var otherClient in ClientManager.Clients) {
-					if (otherClient == client) {
-						continue;
+		public void Update()
+		{
+			if (!startDateTime.HasValue) {
+				startDateTime = DateTime.Now;
+			}
+
+			var elapsedSeconds = (DateTime.Now - startDateTime.Value).TotalSeconds;
+			var currentStep = elapsedSeconds / Settings.SimulationStep;
+            CurrentStep = (int)currentStep;
+			CurrentStepProgress = (float)(elapsedSeconds % Settings.SimulationStep) / Settings.SimulationStepF;
+        }
+
+		public void PhysicsSimulate()
+		{
+			if (lastSimulationStep == CurrentStep + 1) {
+				var wasPreSimulationModified = false;
+				foreach (var player in Players) {
+					if (player.InputModified) {
+						wasPreSimulationModified = true;
+						break;
 					}
-
-					otherClient.InputStates.RewindForward(client.InputStates.CurrentStep);
 				}
-			}
-			if (!rewindResult.WasRewinded) {
-				return;
-			}
-
-			// TODO: Reset physics states
-			//rewindResult.Steps
-		}
-
-		public void ClientUpdate()
-		{
-			var elapsedSeconds = (DateTime.Now - startDateTime).TotalSeconds;
-			CurrentStep = (int)(elapsedSeconds / Settings.Step);
-			CurrentSimulationStep = (int)(elapsedSeconds / Settings.SimulationStep);
-		}
-
-		public void ClientSimulation()
-		{
-			for (; lastSimulationStep <= CurrentSimulationStep; lastSimulationStep++) {
-				var currentStep = (int)(lastSimulationStep * Settings.StepsPerSimulations);
-
-				foreach (var client in ClientManager.Clients) {
-					client.Input = client.InputStates[currentStep];
-				}
-
-				// TODO: Жуткая залепа для ClientSidePrediction. Надо сделать ротацию состояний для объектов
-				//требующих синхронизации
-				foreach (var physicsObject in PhysicsSystem.Objects) {
-					var syncObject = physicsObject as PhysicsPlayer;
-					if (syncObject == null) {
-						continue;
+				if (wasPreSimulationModified) {
+					foreach (var physicsObject in Physics.Objects) {
+						var dynamicBody = physicsObject as PhysicsDynamicBody;
+						dynamicBody?.RewindBack();
 					}
-					syncObject.State.Step = currentStep;
+					Physics.FixedUpdate();
 				}
-				PhysicsSystem.FixedUpdate();
 			}
+
+			while (lastSimulationStep <= CurrentStep) {
+				foreach (var player in Players) {
+					player.RewindForward();
+				}
+				foreach (var physicsObject in Physics.Objects) {
+					var dynamicBody = physicsObject as PhysicsDynamicBody;
+					dynamicBody?.RewindForward();
+				}
+
+				Physics.FixedUpdate();
+				++lastSimulationStep;
+            }
 		}
 	}
 }

@@ -32,3 +32,8 @@ sysinfo.txt
 /GameLibrary/bin
 /GameLibrary/obj
 !/GameLibrary/GameLibrary.csproj
+
+# FarseerPhysics
+/FarseerPhysics/bin
+/FarseerPhysics/obj
+!/FarseerPhysics/FarseerPhysics.csproj

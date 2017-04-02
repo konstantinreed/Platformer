@@ -10,65 +10,60 @@ namespace Scripts
 		private const float FlipTolerance = 0.5f;
 		private const float RotationSmoothing = 0.5f;
 
-		private PhysicsPlayer physicsPlayer;
+		private Player player;
 		private Animator animator;
 		private Quaternion initialRotation;
 		private bool isFacingRight = true;
-		
+
 		public GameObject AnimatorGameObject;
 		public Transform RotationTransform;
 
 		public void Start()
 		{
-			var unityApplication = UnityApplication.Instance;
-			physicsPlayer = unityApplication.Client.Player;
+			player = UnityApplication.Instance.Player;
 			animator = AnimatorGameObject != null ? AnimatorGameObject.GetComponent<Animator>() : null;
 			initialRotation = RotationTransform != null ? RotationTransform.rotation : Quaternion.identity;
 		}
 
 		public void Update()
 		{
-			transform.position = new Vector3(physicsPlayer.Body.Position.X, physicsPlayer.Body.Position.Y, 0f);
+			var state = player.GetState();
+			transform.position = new Vector3(state.Position.X, state.Position.Y, 0f);
 
-			var velocity = physicsPlayer.Body.LinearVelocity;
-
-			if ((velocity.X > FlipTolerance && !isFacingRight) || (velocity.X < -FlipTolerance && isFacingRight)) {
+			if ((state.LinearVelocity.X > FlipTolerance && !isFacingRight) || (state.LinearVelocity.X < -FlipTolerance && isFacingRight)) {
 				Flip();
 			}
 
-			var angle = Mathf.Lerp(RotationSmoothing, physicsPlayer.State.Rotation, 0f) * Mathf.RadToDeg;
+			var angle = Mathf.Lerp(RotationSmoothing, state.ScopeAngle, 0f) * Mathf.RadToDeg;
 			RotationTransform.rotation = Quaternion.AngleAxis(angle, Vector3.forward) * initialRotation;
 
-			var velocityXFactor = Mathf.Abs(velocity.X) / PhysicsPlayer.MaxHorizontalSpeed;
+			var velocityXFactor = Mathf.Abs(state.LinearVelocity.X) / PlayerState.MaxHorizontalSpeed;
 			var velocityYFactor =
-				velocity.Y /
-				(velocity.Y >= 0 ? PhysicsPlayer.MaxVerticalSpeed : -PhysicsPlayer.MinVerticalSpeed);
+				state.LinearVelocity.Y /
+				(state.LinearVelocity.Y >= 0 ? PlayerState.MaxVerticalSpeed : -PlayerState.MinVerticalSpeed);
 
 			if (animator != null) {
 				animator.SetFloat("VelocityX", velocityXFactor);
 				animator.SetFloat("VelocityY", velocityYFactor);
 				animator.SetFloat("Rotation", angle);
-				animator.SetFloat("LandingVelocityYFactor", physicsPlayer.State.LandingVelocityYFactor);
-				animator.SetBool("IsGroundSensorActive", physicsPlayer.State.IsGrounded);
-				animator.SetBool("IsWallSensorActive", physicsPlayer.State.IsClingedWall);
+				animator.SetFloat("LandingVelocityYFactor", state.LandingVelocityYFactor);
+				animator.SetBool("IsGroundSensorActive", state.IsGrounded);
+				animator.SetBool("IsWallSensorActive", state.IsClingedWall);
 				animator.SetBool(
 					"IsIdle",
-					physicsPlayer.State.Animation == PlayerAnimation.Idle ||
-					physicsPlayer.State.Animation == PlayerAnimation.Running && velocityXFactor < 0.01f
+					state.Animation == PlayerAnimation.Idle ||
+					state.Animation == PlayerAnimation.Running && velocityXFactor < 0.01f
 				);
-				animator.SetBool(
-					"IsRunning",
-					velocityXFactor >= 0.01f && physicsPlayer.State.Animation == PlayerAnimation.Running
-				);
-				animator.SetBool("IsJumping", physicsPlayer.State.Animation == PlayerAnimation.Jumping);
-				animator.SetBool("IsWallJumping", physicsPlayer.State.Animation == PlayerAnimation.WallJumping);
-				animator.SetBool("IsFalling", physicsPlayer.State.Animation == PlayerAnimation.Falling);
-				animator.SetBool("IsWallFalling", physicsPlayer.State.Animation == PlayerAnimation.WallFalling);
-				animator.SetBool("IsLanding", physicsPlayer.State.Animation == PlayerAnimation.Landing);
+				animator.SetBool("IsRunning",     velocityXFactor >= 0.01f && state.Animation == PlayerAnimation.Running);
+				animator.SetBool("IsJumping",     state.Animation == PlayerAnimation.Jumping);
+				animator.SetBool("IsWallJumping", state.Animation == PlayerAnimation.WallJumping);
+				animator.SetBool("IsFalling",     state.Animation == PlayerAnimation.Falling);
+				animator.SetBool("IsWallFalling", state.Animation == PlayerAnimation.WallFalling);
+				animator.SetBool("IsLanding",     state.Animation == PlayerAnimation.Landing);
 			}
 		}
 
-		public void Flip()
+		private void Flip()
 		{
 			isFacingRight = !isFacingRight;
 			transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);

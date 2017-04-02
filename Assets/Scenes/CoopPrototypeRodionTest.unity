@@ -3121,7 +3121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FollowingObject: {fileID: 1671352898}
-  DampTime: 0.15
+  DampTime: 0.09
 --- !u!1001 &2063887051
 Prefab:
   m_ObjectHideFlags: 0

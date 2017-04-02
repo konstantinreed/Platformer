@@ -1508,7 +1508,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FollowingObject: {fileID: 1671352898}
-  DampTime: 0.2
+  DampTime: 0.09
 --- !u!81 &981043148
 AudioListener:
   m_ObjectHideFlags: 0
