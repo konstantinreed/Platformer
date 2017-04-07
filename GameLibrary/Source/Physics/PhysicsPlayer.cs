@@ -162,12 +162,12 @@ namespace GameLibrary
 		// Dynamics consts
 		private const float HorizontalCorrectionInAir = 0.1f;
 		private const float JumpVerticalSpeed = 15f;
-		private const float ReinforcementVerticalSpeed = 13f;
+		private const float ReinforcementVerticalSpeed = 15f;
 		private const float WallJumpVerticalSpeed = 19f;
 		private const float WallJumpHorizontalSpeed = 7f;
 		private const float MinWallClingedVerticalSpeed = -5f;
 		internal const int JumpingSteps = 4;
-		internal const int JumpingReinforcement = 4;
+		internal const int JumpingReinforcement = 6;
 		internal const int WallJumpUnalteredSteps = 13;
 		internal const int LandingSteps = 1;
 
@@ -270,6 +270,7 @@ namespace GameLibrary
 					State.HorizontalCorrectionStep = State.JumpedStep + WallJumpUnalteredSteps;
 				}
 			}
+			velocityY = Mathf.Clamp(velocityY, minVerticalSpeed, PlayerState.MaxVerticalSpeed);
 			if (velocityY <= 0) {
 				if (State.DoneFallingConditions) {
 					State.Animation = PlayerAnimation.Falling;
