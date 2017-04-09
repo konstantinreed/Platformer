@@ -14,6 +14,17 @@ namespace GameLibrary
 		WallJumping,
 		Falling,
 		WallFalling,
+		Landing,
+		Dying
+	}
+
+	internal enum PlayerPhysicsState
+	{
+		Landed,
+		Jumping,
+		WallJumping,
+		Falling,
+		WallFalling,
 		Landing
 	}
 
@@ -23,57 +34,40 @@ namespace GameLibrary
 		public const float MaxVerticalSpeed = 19f;
 		public const float MinVerticalSpeed = -30f;
 
+		internal PlayerPhysicsState Physics;
 		public PlayerAnimation Animation;
 		public float ScopeAngle;
 		public bool IsGrounded;
 		public bool IsClingedWall;
 		internal int InputJumpedStep;
-		public int JumpedStep;
-		public int LandedStep;
-		public int HorizontalCorrectionStep;
-		public float LastFallingVelocityYFactor;
+		internal int JumpedStep;
+		internal int LandedStep;
+		internal int HorizontalCorrectionStep;
+		internal float LastFallingVelocityYFactor;
 		public float LandingVelocityYFactor;
+		internal bool IsDead;
 
-		internal bool IsLanded =>
-			Animation == PlayerAnimation.Idle ||
-			Animation == PlayerAnimation.Running ||
-			Animation == PlayerAnimation.Landing;
-
-		internal bool IsWalking =>
-			Animation == PlayerAnimation.Idle ||
-			Animation == PlayerAnimation.Running;
-
-		internal bool DoneJumpingConditions => IsGrounded && IsLanded;
-
-		internal bool DoneWallJumpingConditions =>
-			!IsGrounded &&
-			IsClingedWall &&
-			Step > JumpedStep + PhysicsPlayer.JumpingSteps;
-
+		internal bool IsNearGround => Physics == PlayerPhysicsState.Landed || Physics == PlayerPhysicsState.Landing;
+		internal bool DoneJumpingConditions => IsGrounded && IsNearGround;
+		internal bool DoneWallJumpingConditions => !IsGrounded && IsClingedWall && Step > JumpedStep + PhysicsPlayer.JumpingSteps;
 		internal bool DoneJumpingReinforcementConditions =>
-			Animation == PlayerAnimation.Jumping &&
+			Physics == PlayerPhysicsState.Jumping &&
 			Step == JumpedStep + PhysicsPlayer.JumpingReinforcement;
-
-		internal bool DoneHorizontalCorrectionConditions =>
-			Step >= HorizontalCorrectionStep;
-
+		internal bool DoneHorizontalCorrectionConditions => Step >= HorizontalCorrectionStep;
 		internal bool DoneFallingConditions => !IsGrounded && !IsClingedWall;
-
 		internal bool DoneWallFallingConditions => !IsGrounded && IsClingedWall;
-
 		internal bool DoneLandingConditions =>
 			IsGrounded &&
 			(
-				Animation == PlayerAnimation.Falling ||
-				Animation == PlayerAnimation.WallFalling ||
+				Physics == PlayerPhysicsState.Falling ||
+				Physics == PlayerPhysicsState.WallFalling ||
 				(
-					(Animation == PlayerAnimation.Jumping || Animation == PlayerAnimation.WallJumping) &&
+					(Physics == PlayerPhysicsState.Jumping || Physics == PlayerPhysicsState.WallJumping) &&
 					Step > JumpedStep + PhysicsPlayer.JumpingSteps
 				)
 			);
-
 		internal bool DoneLandingFinishConditions =>
-			Animation == PlayerAnimation.Landing &&
+			Physics == PlayerPhysicsState.Landing &&
 			Step >= LandedStep + PhysicsPlayer.LandingSteps;
 
 		public override void Reset()
@@ -81,6 +75,7 @@ namespace GameLibrary
 			base.Reset();
 
 			Animation = default(PlayerAnimation);
+			Physics = default(PlayerPhysicsState);
             ScopeAngle = default(float);
 			IsGrounded = default(bool);
 			IsClingedWall = default(bool);
@@ -90,6 +85,7 @@ namespace GameLibrary
 			HorizontalCorrectionStep = default(int);
 			LastFallingVelocityYFactor = default(float);
 			LandingVelocityYFactor = default(float);
+			IsDead = default(bool);
 		}
 
 		internal override void Copy(PhysicsBodyState state)
@@ -98,6 +94,7 @@ namespace GameLibrary
 
 			var playerState = (PlayerState)state;
 			Animation = playerState.Animation;
+			Physics = playerState.Physics;
 			ScopeAngle = playerState.ScopeAngle;
 			IsGrounded = playerState.IsGrounded;
 			IsClingedWall = playerState.IsClingedWall;
@@ -107,12 +104,14 @@ namespace GameLibrary
 			HorizontalCorrectionStep = playerState.HorizontalCorrectionStep;
 			LastFallingVelocityYFactor = playerState.LastFallingVelocityYFactor;
 			LandingVelocityYFactor = playerState.LandingVelocityYFactor;
-		}
+			IsDead = playerState.IsDead;
+        }
 
 		internal static PlayerState Lerp(float progress, PlayerState from, PlayerState to)
 		{
 			var progressState = new PlayerState() {
 				Animation = from.Animation,
+				Physics = from.Physics,
 				ScopeAngle = Mathf.Lerp(progress, from.ScopeAngle, to.ScopeAngle),
 				IsGrounded = from.IsGrounded,
 				IsClingedWall = from.IsClingedWall,
@@ -121,7 +120,8 @@ namespace GameLibrary
 				LandedStep = from.LandedStep,
 				HorizontalCorrectionStep = from.HorizontalCorrectionStep,
 				LastFallingVelocityYFactor = from.LastFallingVelocityYFactor,
-				LandingVelocityYFactor = from.LandingVelocityYFactor
+				LandingVelocityYFactor = from.LandingVelocityYFactor,
+				IsDead = from.IsDead
 			};
 			Lerp(progress, from, to, progressState);
 			return progressState;
@@ -249,20 +249,25 @@ namespace GameLibrary
 			State.ScopeAngle = groundSensor.IsActive ? groundSensor.GetAverageRadians(Mathf.HalfPi) - Mathf.HalfPi : 0f;
 			var minimalGroundFraction = groundSensor.IsActive ? groundSensor.GetMinimalFraction(1f) : 1f;
 
-			var minVerticalSpeed = State.Animation == PlayerAnimation.WallFalling ? MinWallClingedVerticalSpeed : PlayerState.MinVerticalSpeed;
+			var minVerticalSpeed = State.Physics == PlayerPhysicsState.WallFalling ? MinWallClingedVerticalSpeed : PlayerState.MinVerticalSpeed;
 			var velocityX = Body.LinearVelocity.X;
 			var velocityY = Mathf.Clamp(Body.LinearVelocity.Y, minVerticalSpeed, PlayerState.MaxVerticalSpeed);
 
+			// Common
+			if (Input.IsSuicidePressed) {
+				State.IsDead = true;
+            }
+
 			// Vertical velocity
-			if (Input.IsJumpJustPressed) {
+			if (!State.IsDead && Input.IsJumpJustPressed) {
 				if (State.DoneJumpingConditions) {
-					State.Animation = PlayerAnimation.Jumping;
+					State.Physics = PlayerPhysicsState.Jumping;
 					velocityY = JumpVerticalSpeed;
 					State.InputJumpedStep = Input.JumpPressedStep;
 					State.JumpedStep = State.Step;
 					State.HorizontalCorrectionStep = State.JumpedStep;
 				} else if (State.DoneWallJumpingConditions) {
-					State.Animation = PlayerAnimation.WallJumping;
+					State.Physics = PlayerPhysicsState.WallJumping;
 					velocityY = WallJumpVerticalSpeed;
 					var signX = leftWallSensor.IsActive ? 1f : -1f;
 					velocityX = signX * WallJumpHorizontalSpeed;
@@ -273,28 +278,28 @@ namespace GameLibrary
 			velocityY = Mathf.Clamp(velocityY, minVerticalSpeed, PlayerState.MaxVerticalSpeed);
 			if (velocityY <= 0) {
 				if (State.DoneFallingConditions) {
-					State.Animation = PlayerAnimation.Falling;
+					State.Physics = PlayerPhysicsState.Falling;
 				} else if (State.DoneWallFallingConditions) {
-					State.Animation = PlayerAnimation.WallFalling;
+					State.Physics = PlayerPhysicsState.WallFalling;
 				}
 			}
 			if (State.DoneLandingConditions) {
-				State.Animation = PlayerAnimation.Landing;
+				State.Physics = PlayerPhysicsState.Landing;
 				State.LandedStep = State.Step;
 				State.LandingVelocityYFactor = State.LastFallingVelocityYFactor;
 			}
-			if (Input.IsJumpPressed && State.InputJumpedStep == Input.JumpPressedStep && State.DoneJumpingReinforcementConditions) {
+			if (!State.IsDead && Input.IsJumpPressed && State.InputJumpedStep == Input.JumpPressedStep && State.DoneJumpingReinforcementConditions) {
 				velocityY = ReinforcementVerticalSpeed;
 			}
 			var requiredGravityResistance = false;
-			if (State.IsLanded && (velocityY > 0 || minimalGroundFraction <= GroundSensorContactFraction)) {
+			if (State.IsNearGround && (velocityY > 0 || minimalGroundFraction <= GroundSensorContactFraction)) {
 				velocityY = 0f;
 				requiredGravityResistance = true;
 			}
 			var velocityYFactor = velocityY / (velocityY >= 0 ? PlayerState.MaxVerticalSpeed : -PlayerState.MinVerticalSpeed);
 
 			// Horizontal velocity
-			var inputX = Input.IsLeftPressed != Input.IsRightPressed ? (Input.IsLeftPressed ? -1 : 1) : 0;
+			var inputX = Input.IsLeftPressed != Input.IsRightPressed && !State.IsDead ? (Input.IsLeftPressed ? -1 : 1) : 0;
 			var rotationX = 0f;
 			if (groundSensor.IsActive && inputX != 0) {
 				var forwardScope = groundSensor.ScopeSensors[inputX == -1 ? 0 : 2];
@@ -329,7 +334,7 @@ namespace GameLibrary
 				}
 				rotationX -= Mathf.HalfPi;
 			}
-			if (State.IsLanded) {
+			if (State.IsNearGround) {
 				velocityX = inputX * PlayerState.MaxHorizontalSpeed;
 			} else if (State.DoneHorizontalCorrectionConditions) {
 				velocityX += inputX * PlayerState.MaxHorizontalSpeed * HorizontalCorrectionInAir;
@@ -338,10 +343,8 @@ namespace GameLibrary
 					velocityX = 0f;
 				}
 			}
-			var velocityXFactor = Mathf.Abs(velocityX) / PlayerState.MaxHorizontalSpeed;
-
-			if (State.IsWalking || State.DoneLandingFinishConditions) {
-				State.Animation = velocityXFactor > 0.01f ? PlayerAnimation.Running : PlayerAnimation.Idle;
+			if (State.DoneLandingFinishConditions) {
+				State.Physics = PlayerPhysicsState.Landed;
 			}
 
 			// Apply physics
@@ -353,6 +356,38 @@ namespace GameLibrary
 
 			if (velocityYFactor <= -0.01f) {
 				State.LastFallingVelocityYFactor = velocityYFactor;
+			}
+		}
+
+		public override void Updated(float delta)
+		{
+			base.Updated(delta);
+			
+			if (State.IsDead) {
+				State.Animation = PlayerAnimation.Dying;
+				return;
+			}
+
+			switch (State.Physics) {
+				case PlayerPhysicsState.Landed:
+					var velocityXFactor = Mathf.Clamp(Mathf.Abs(Body.LinearVelocity.X) / PlayerState.MaxHorizontalSpeed, 0f, 1f);
+					State.Animation = velocityXFactor > 0.01f ? PlayerAnimation.Running : PlayerAnimation.Idle;
+					break;
+				case PlayerPhysicsState.Jumping:
+					State.Animation = PlayerAnimation.Jumping;
+					break;
+				case PlayerPhysicsState.WallJumping:
+					State.Animation = PlayerAnimation.WallJumping;
+					break;
+				case PlayerPhysicsState.Falling:
+					State.Animation = PlayerAnimation.Falling;
+					break;
+				case PlayerPhysicsState.WallFalling:
+					State.Animation = PlayerAnimation.WallFalling;
+					break;
+				case PlayerPhysicsState.Landing:
+					State.Animation = PlayerAnimation.Landing;
+					break;
 			}
 		}
 	}

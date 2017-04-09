@@ -49,17 +49,14 @@ namespace Scripts
 				animator.SetFloat("LandingVelocityYFactor", state.LandingVelocityYFactor);
 				animator.SetBool("IsGroundSensorActive", state.IsGrounded);
 				animator.SetBool("IsWallSensorActive", state.IsClingedWall);
-				animator.SetBool(
-					"IsIdle",
-					state.Animation == PlayerAnimation.Idle ||
-					state.Animation == PlayerAnimation.Running && velocityXFactor < 0.01f
-				);
-				animator.SetBool("IsRunning",     velocityXFactor >= 0.01f && state.Animation == PlayerAnimation.Running);
+				animator.SetBool("IsIdle",        state.Animation == PlayerAnimation.Idle);
+				animator.SetBool("IsRunning",     state.Animation == PlayerAnimation.Running);
 				animator.SetBool("IsJumping",     state.Animation == PlayerAnimation.Jumping);
 				animator.SetBool("IsWallJumping", state.Animation == PlayerAnimation.WallJumping);
 				animator.SetBool("IsFalling",     state.Animation == PlayerAnimation.Falling);
 				animator.SetBool("IsWallFalling", state.Animation == PlayerAnimation.WallFalling);
 				animator.SetBool("IsLanding",     state.Animation == PlayerAnimation.Landing);
+				animator.SetBool("IsDying",       state.Animation == PlayerAnimation.Dying);
 			}
 		}
 

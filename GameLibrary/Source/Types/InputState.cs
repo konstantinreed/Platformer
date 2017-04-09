@@ -12,6 +12,7 @@ namespace GameLibrary
 		public bool IsRightPressed;
 		public bool IsJumpPressed;
 		internal int JumpPressedStep;
+		public bool IsSuicidePressed;
 
 		internal bool IsJumpJustPressed => IsJumpPressed && JumpPressedStep >= Step - JumpPressedDurability;
 
@@ -21,7 +22,8 @@ namespace GameLibrary
 			IsRightPressed = default(bool);
 			IsJumpPressed = default(bool);
 			JumpPressedStep = default(int);
-        }
+			IsSuicidePressed = default(bool);
+		}
 
 		internal void Copy(InputState state)
 		{
@@ -29,7 +31,8 @@ namespace GameLibrary
 			IsRightPressed = state.IsRightPressed;
 			IsJumpPressed = state.IsJumpPressed;
 			JumpPressedStep = state.JumpPressedStep;
-		}
+			IsSuicidePressed = state.IsSuicidePressed;
+        }
 
 		internal void Merge(InputState state)
 		{
@@ -37,6 +40,7 @@ namespace GameLibrary
 			IsRightPressed = IsRightPressed || state.IsRightPressed;
 			IsJumpPressed = IsJumpPressed || state.IsJumpPressed;
 			JumpPressedStep = Math.Max(JumpPressedStep, state.JumpPressedStep);
+			IsSuicidePressed = IsSuicidePressed || state.IsSuicidePressed;
 		}
 
 		internal void SetPreviousInput(InputState previousInput)
@@ -53,7 +57,8 @@ namespace GameLibrary
 			return
 				(!IsLeftPressed && state.IsLeftPressed) ||
 				(!IsRightPressed && state.IsRightPressed) ||
-				(!IsJumpPressed && state.IsJumpPressed);
+				(!IsJumpPressed && state.IsJumpPressed) ||
+				(!IsSuicidePressed && state.IsSuicidePressed);
         }
 
 		public static bool operator==(InputState lhs, InputState rhs)
@@ -68,7 +73,8 @@ namespace GameLibrary
 			return
 				lhs.IsLeftPressed == rhs.IsLeftPressed &&
 				lhs.IsRightPressed == rhs.IsRightPressed &&
-				lhs.IsJumpPressed == rhs.IsJumpPressed;
+				lhs.IsJumpPressed == rhs.IsJumpPressed &&
+				lhs.IsSuicidePressed == rhs.IsSuicidePressed;
 		}
 
 		public static bool operator!=(InputState lhs, InputState rhs)
