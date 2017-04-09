@@ -26,6 +26,8 @@ namespace GameLibrary
 
 	internal abstract class PhysicsDynamicBody<T> : PhysicsDynamicBody where T : PhysicsBodyState, new()
 	{
+		private readonly T initialState = new T();
+
 		protected abstract Func<float, T, T, T> StateLerpFunc { get; }
 
 		public readonly RingStepBuffer<T> States = new RingStepBuffer<T>(Settings.SavedStatesCount);
@@ -45,7 +47,8 @@ namespace GameLibrary
 		{
 			State = States[0];
 			State.CopyFromBody(Body);
-		}
+			initialState.Copy(State);
+        }
 
 		public sealed override void RewindForward()
 		{
@@ -71,6 +74,14 @@ namespace GameLibrary
 		public T GetState(float progress)
 		{
 			return StateLerpFunc(progress, States[States.CurrentStep - 1], State);
+		}
+
+		public void SetPosition(Vector2 value)
+		{
+			State.Copy(initialState);
+			State.BodyCache.Position = value;
+			State.Position = value;
+			State.ApplyToBody(Body);
 		}
 	}
 }

@@ -31,6 +31,7 @@ namespace GameLibrary
 		{
 			if (!startDateTime.HasValue) {
 				startDateTime = DateTime.Now;
+				Physics.Awake();
 			}
 
 			var elapsedSeconds = (DateTime.Now - startDateTime.Value).TotalSeconds;

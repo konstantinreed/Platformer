@@ -42,6 +42,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\GameLogics\KeepPlayersAlive.cs" />
+    <Compile Include="Source\Types\GameLogic.cs" />
     <Compile Include="Source\Physics\PhysicsDynamicBody.cs" />
     <Compile Include="Source\Player.cs" />
     <Compile Include="Source\GameApplication.cs" />
@@ -70,6 +72,7 @@
       <Name>FarseerPhysics</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /y /d  "$(ProjectDir)$(OutDir)GameLibrary.dll" "$(ProjectDir)..\Assets\Libraries\"
