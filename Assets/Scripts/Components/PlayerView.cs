@@ -14,36 +14,38 @@ namespace Scripts
 		private Player player;
 		private Animator animator;
 		private Quaternion initialRotation;
-		private bool isFacingRight = true;
 		private bool wasHitting;
 		private int hitIndex;
 
 		public GameObject AnimatorGameObject;
 		public Transform RotationTransform;
+		public PlayerState State { get; private set; }
+		public bool IsFacingRight { get; private set; }
 
 		public void Start()
 		{
 			player = UnityApplication.Instance.Player;
 			animator = AnimatorGameObject != null ? AnimatorGameObject.GetComponent<Animator>() : null;
 			initialRotation = RotationTransform != null ? RotationTransform.rotation : Quaternion.identity;
-		}
+			IsFacingRight = true;
+        }
 
 		public void Update()
 		{
-			var state = player.GetState();
-			transform.position = new Vector3(state.Position.X, state.Position.Y, 0f);
+			State = player.GetState();
+			transform.position = new Vector3(State.Position.X, State.Position.Y, 0f);
 
-			if ((state.LinearVelocity.X > FlipTolerance && !isFacingRight) || (state.LinearVelocity.X < -FlipTolerance && isFacingRight)) {
+			if ((State.LinearVelocity.X > FlipTolerance && !IsFacingRight) || (State.LinearVelocity.X < -FlipTolerance && IsFacingRight)) {
 				Flip();
 			}
 
-			var angle = Mathf.Lerp(RotationSmoothing, state.ScopeAngle, 0f) * Mathf.RadToDeg;
+			var angle = Mathf.Lerp(RotationSmoothing, State.ScopeAngle, 0f) * Mathf.RadToDeg;
 			RotationTransform.rotation = Quaternion.AngleAxis(angle, Vector3.forward) * initialRotation;
 
-			var velocityXFactor = Mathf.Abs(state.LinearVelocity.X) / PlayerState.MaxHorizontalSpeed;
+			var velocityXFactor = Mathf.Abs(State.LinearVelocity.X) / PlayerState.MaxHorizontalSpeed;
 			var velocityYFactor =
-				state.LinearVelocity.Y /
-				(state.LinearVelocity.Y >= 0 ? PlayerState.MaxVerticalSpeed : -PlayerState.MinVerticalSpeed);
+				State.LinearVelocity.Y /
+				(State.LinearVelocity.Y >= 0 ? PlayerState.MaxVerticalSpeed : -PlayerState.MinVerticalSpeed);
 
 			if (animator != null) {
 				if (wasHitting && state.Animation != PlayerAnimation.Hitting) {
@@ -54,25 +56,25 @@ namespace Scripts
 				animator.SetFloat("VelocityX", velocityXFactor);
 				animator.SetFloat("VelocityY", velocityYFactor);
 				animator.SetFloat("Rotation", angle);
-				animator.SetFloat("LandingVelocityYFactor", state.LandingVelocityYFactor);
-				animator.SetBool("IsGroundSensorActive", state.IsGrounded);
-				animator.SetBool("IsWallSensorActive", state.IsClingedWall);
-				animator.SetBool("IsIdle",        state.Animation == PlayerAnimation.Idle);
-				animator.SetBool("IsRunning",     state.Animation == PlayerAnimation.Running);
-				animator.SetBool("IsJumping",     state.Animation == PlayerAnimation.Jumping);
-				animator.SetBool("IsWallJumping", state.Animation == PlayerAnimation.WallJumping);
-				animator.SetBool("IsFalling",     state.Animation == PlayerAnimation.Falling);
-				animator.SetBool("IsWallFalling", state.Animation == PlayerAnimation.WallFalling);
-				animator.SetBool("IsLanding",     state.Animation == PlayerAnimation.Landing);
-				animator.SetBool("IsHitting",     state.Animation == PlayerAnimation.Hitting);
-				animator.SetBool("IsDying",       state.Animation == PlayerAnimation.Dying);
+				animator.SetFloat("LandingVelocityYFactor", State.LandingVelocityYFactor);
+				animator.SetBool("IsGroundSensorActive", State.IsGrounded);
+				animator.SetBool("IsWallSensorActive", State.IsClingedWall);
+				animator.SetBool("IsIdle",        State.Animation == PlayerAnimation.Idle);
+				animator.SetBool("IsRunning",     State.Animation == PlayerAnimation.Running);
+				animator.SetBool("IsJumping",     State.Animation == PlayerAnimation.Jumping);
+				animator.SetBool("IsWallJumping", State.Animation == PlayerAnimation.WallJumping);
+				animator.SetBool("IsFalling",     State.Animation == PlayerAnimation.Falling);
+				animator.SetBool("IsWallFalling", State.Animation == PlayerAnimation.WallFalling);
+				animator.SetBool("IsLanding",     State.Animation == PlayerAnimation.Landing);
+				animator.SetBool("IsHitting",     State.Animation == PlayerAnimation.Hitting);
+				animator.SetBool("IsDying",       State.Animation == PlayerAnimation.Dying);
 				animator.SetInteger("HittingIndex", hitIndex);
 			}
 		}
 
 		private void Flip()
 		{
-			isFacingRight = !isFacingRight;
+			IsFacingRight = !IsFacingRight;
 			transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
 		}
 	}
