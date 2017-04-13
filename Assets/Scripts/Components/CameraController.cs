@@ -1,18 +1,25 @@
-﻿using UnityEngine;
+﻿using GameLibrary;
+using UnityEngine;
+using Mathf = UnityEngine.Mathf;
 
 namespace Scripts
 {
 	public class CameraController : MonoBehaviour
 	{
-		private const float DampTimeX = 0.4f;
-		private const float DampMaxSpeedX = 25f;
-		private const float DampTimeY = 0.09f;
-		private const float DampMaxSpeedY = 1000f;
-		private const float ViewportYTarget = 0.35f;
+		private const float ViewportXTargetMaxInterval = 0.05f;
 
 		private new Camera camera;
 		private PlayerView[] players;
 		private Vector3 velocity = Vector3.zero;
+
+		public float ViewportXTarget = 0.3f;
+		public float DampTimeX = 0.4f;
+		public float DampMaxSpeedX = 25f;
+		public float ViewportYTarget = 0.35f;
+		public float ViewportYMax = 0.64f;
+		public float ViewportYMin = 0.22f;
+		public float DampTimeY = 0.09f;
+		public float DampMaxSpeedY = 1000f;
 
 		public bool RequiredSmoothDamp { get; set; }
 
@@ -28,6 +35,12 @@ namespace Scripts
 
 		public void Update()
 		{
+			if (velocity.magnitude <= 0.01f) {
+				velocity = Vector3.zero;
+			}
+
+			transform.position = GetCameraClampedPosition();
+
 			var cameraPosition = GetCameraPosition();
 			transform.position =
 				RequiredSmoothDamp ?
@@ -36,9 +49,29 @@ namespace Scripts
 					Mathf.SmoothDamp(transform.position.y, cameraPosition.y, ref velocity.y, DampTimeY, DampMaxSpeedY),
 					cameraPosition.z
 				) :
-				//Vector3.SmoothDamp(transform.position, cameraPosition, ref velocity, DampTime) :
 				cameraPosition;
+
 			RequiredSmoothDamp = true;
+		}
+
+		private Vector3 GetCameraClampedPosition()
+		{
+			// TODO: Support of many players
+			var player = players[0];
+
+			var point = camera.WorldToViewportPoint(player.transform.position);
+
+			// X target
+			//var viewportXTarget = player.IsFacingRight ? ViewportXTarget : 1f - ViewportXTarget;
+			var viewportXFraction = camera.WorldToViewportPoint(player.transform.position).x;
+			//viewportXFraction = Mathf.Clamp(viewportXFraction, viewportXTarget - ViewportXTargetMaxInterval, viewportXTarget + ViewportXTargetMaxInterval);
+
+			// Y target
+			var viewportYFraction = camera.WorldToViewportPoint(player.transform.position).y;
+			viewportYFraction = Mathf.Clamp(viewportYFraction, ViewportYMin, ViewportYMax);
+
+			var delta = player.transform.position - camera.ViewportToWorldPoint(new Vector3(viewportXFraction, viewportYFraction, point.z));
+			return transform.position + delta;
 		}
 
 		private Vector3 GetCameraPosition()
@@ -47,8 +80,17 @@ namespace Scripts
 			var player = players[0];
 
 			var point = camera.WorldToViewportPoint(player.transform.position);
-			var viewportXTarget = player.IsFacingRight ? 0.3f : 0.7f;
-			var delta = player.transform.position - camera.ViewportToWorldPoint(new Vector3(viewportXTarget, ViewportYTarget, point.z));
+
+			// X target
+			var viewportXTarget = (player.IsFacingRight && !player.State.IsClingedWall) || (!player.IsFacingRight && player.State.IsClingedWall) ? ViewportXTarget : 1f - ViewportXTarget;
+
+			// Y target
+			var viewportYTarget =
+				(player.State.IsGrounded && player.State.Animation != PlayerAnimation.Jumping) || player.State.IsClingedWall ?
+				ViewportYTarget :
+				camera.WorldToViewportPoint(player.transform.position).y;
+
+			var delta = player.transform.position - camera.ViewportToWorldPoint(new Vector3(viewportXTarget, viewportYTarget, point.z));
 			return transform.position + delta;
 		}
 	}
