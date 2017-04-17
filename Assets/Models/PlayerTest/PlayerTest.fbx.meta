@@ -99,6 +99,8 @@ ModelImporter:
     7400022: UpRun
     7400024: WallFalling
     7400026: Dying
+    7400028: Hit_R
+    7400030: Hit_L
     9500000: //RootNode
     13700000: Cube_1
     13700002: Cube_2
@@ -116,6 +118,8 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -1441,6 +1445,186 @@ ModelImporter:
       maskType: 0
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Hit_R
+      takeName: CINEMA_4D_Main
+      firstFrame: 560
+      lastFrame: 570
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Null_1
+        weight: 1
+      - path: Null_1/arm_L
+        weight: 1
+      - path: Null_1/arm_L/shoulder_R_Pole
+        weight: 1
+      - path: Null_1/arm_R
+        weight: 1
+      - path: Null_1/arm_R/shoulder_L_Pole
+        weight: 1
+      - path: Null_1/leg_L
+        weight: 1
+      - path: Null_1/leg_L_Pole
+        weight: 1
+      - path: Null_1/leg_R
+        weight: 1
+      - path: Null_1/leg_R_Pole
+        weight: 1
+      - path: Null_1/pelvis_ctrl
+        weight: 1
+      - path: Null_1/pelvis_ctrl/had_ctrl
+        weight: 1
+      - path: Null_2
+        weight: 1
+      - path: Null_2/Cube_1
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/pelvis
+        weight: 1
+      - path: Root/pelvis/collarbone
+        weight: 1
+      - path: Root/pelvis/collarbone/neck
+        weight: 1
+      - path: Root/pelvis/collarbone/neck/head_end
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_L
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_L/elbow_L
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_L/elbow_L/arm_end_2
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_R
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_R/elbow_R
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_R/elbow_R/arm_end
+        weight: 1
+      - path: Root/pelvis/leg_L_2
+        weight: 1
+      - path: Root/pelvis/leg_L_2/knee_L
+        weight: 1
+      - path: Root/pelvis/leg_L_2/knee_L/feet_end_2
+        weight: 1
+      - path: Root/pelvis/leg_R_2
+        weight: 1
+      - path: Root/pelvis/leg_R_2/knee_R
+        weight: 1
+      - path: Root/pelvis/leg_R_2/knee_R/feet_end
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Hit_L
+      takeName: CINEMA_4D_Main
+      firstFrame: 590
+      lastFrame: 600
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Null_1
+        weight: 1
+      - path: Null_1/arm_L
+        weight: 1
+      - path: Null_1/arm_L/shoulder_R_Pole
+        weight: 1
+      - path: Null_1/arm_R
+        weight: 1
+      - path: Null_1/arm_R/shoulder_L_Pole
+        weight: 1
+      - path: Null_1/leg_L
+        weight: 1
+      - path: Null_1/leg_L_Pole
+        weight: 1
+      - path: Null_1/leg_R
+        weight: 1
+      - path: Null_1/leg_R_Pole
+        weight: 1
+      - path: Null_1/pelvis_ctrl
+        weight: 1
+      - path: Null_1/pelvis_ctrl/had_ctrl
+        weight: 1
+      - path: Null_2
+        weight: 1
+      - path: Null_2/Cube_1
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/pelvis
+        weight: 1
+      - path: Root/pelvis/collarbone
+        weight: 1
+      - path: Root/pelvis/collarbone/neck
+        weight: 1
+      - path: Root/pelvis/collarbone/neck/head_end
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_L
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_L/elbow_L
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_L/elbow_L/arm_end_2
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_R
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_R/elbow_R
+        weight: 1
+      - path: Root/pelvis/collarbone/shoulder_R/elbow_R/arm_end
+        weight: 1
+      - path: Root/pelvis/leg_L_2
+        weight: 1
+      - path: Root/pelvis/leg_L_2/knee_L
+        weight: 1
+      - path: Root/pelvis/leg_L_2/knee_L/feet_end_2
+        weight: 1
+      - path: Root/pelvis/leg_R_2
+        weight: 1
+      - path: Root/pelvis/leg_R_2/knee_R
+        weight: 1
+      - path: Root/pelvis/leg_R_2/knee_R/feet_end
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
     isReadable: 1
   meshes:
     lODScreenPercentages: []
@@ -1466,6 +1650,7 @@ ModelImporter:
   importAnimation: 1
   copyAvatar: 0
   humanDescription:
+    serializedVersion: 2
     human: []
     skeleton: []
     armTwist: 0.5
@@ -1476,7 +1661,10 @@ ModelImporter:
     legStretch: 0.05
     feetSpacing: 0
     rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
     hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   animationType: 2
   humanoidOversampling: 1
