@@ -12,6 +12,7 @@ namespace GameLibrary
 		public bool IsRightPressed;
 		public bool IsJumpPressed;
 		internal int JumpPressedStep;
+		public bool IsHitPressed;
 		public bool IsSuicidePressed;
 
 		internal bool IsJumpJustPressed => IsJumpPressed && JumpPressedStep >= Step - JumpPressedDurability;
@@ -22,6 +23,7 @@ namespace GameLibrary
 			IsRightPressed = default(bool);
 			IsJumpPressed = default(bool);
 			JumpPressedStep = default(int);
+			IsHitPressed = default(bool);
 			IsSuicidePressed = default(bool);
 		}
 
@@ -31,6 +33,7 @@ namespace GameLibrary
 			IsRightPressed = state.IsRightPressed;
 			IsJumpPressed = state.IsJumpPressed;
 			JumpPressedStep = state.JumpPressedStep;
+			IsHitPressed = state.IsHitPressed;
 			IsSuicidePressed = state.IsSuicidePressed;
         }
 
@@ -40,6 +43,7 @@ namespace GameLibrary
 			IsRightPressed = IsRightPressed || state.IsRightPressed;
 			IsJumpPressed = IsJumpPressed || state.IsJumpPressed;
 			JumpPressedStep = Math.Max(JumpPressedStep, state.JumpPressedStep);
+			IsHitPressed = IsHitPressed || state.IsHitPressed;
 			IsSuicidePressed = IsSuicidePressed || state.IsSuicidePressed;
 		}
 
@@ -58,6 +62,7 @@ namespace GameLibrary
 				(!IsLeftPressed && state.IsLeftPressed) ||
 				(!IsRightPressed && state.IsRightPressed) ||
 				(!IsJumpPressed && state.IsJumpPressed) ||
+				(!IsHitPressed && state.IsHitPressed) ||
 				(!IsSuicidePressed && state.IsSuicidePressed);
         }
 
@@ -74,6 +79,7 @@ namespace GameLibrary
 				lhs.IsLeftPressed == rhs.IsLeftPressed &&
 				lhs.IsRightPressed == rhs.IsRightPressed &&
 				lhs.IsJumpPressed == rhs.IsJumpPressed &&
+				lhs.IsHitPressed == rhs.IsHitPressed &&
 				lhs.IsSuicidePressed == rhs.IsSuicidePressed;
 		}
 

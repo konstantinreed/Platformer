@@ -56,6 +56,7 @@ namespace Scripts
 				animator.SetBool("IsFalling",     state.Animation == PlayerAnimation.Falling);
 				animator.SetBool("IsWallFalling", state.Animation == PlayerAnimation.WallFalling);
 				animator.SetBool("IsLanding",     state.Animation == PlayerAnimation.Landing);
+				animator.SetBool("IsHitting",     state.Animation == PlayerAnimation.Hitting);
 				animator.SetBool("IsDying",       state.Animation == PlayerAnimation.Dying);
 			}
 		}

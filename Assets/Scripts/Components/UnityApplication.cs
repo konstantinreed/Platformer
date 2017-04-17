@@ -30,6 +30,7 @@ namespace Scripts
 				IsLeftPressed = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow),
 				IsRightPressed = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow),
 				IsJumpPressed = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.Space),
+				IsHitPressed = Input.GetKey(KeyCode.Return),
 				IsSuicidePressed = Input.GetKey(KeyCode.K)
 			};
 			Player.SetInput(inputState);

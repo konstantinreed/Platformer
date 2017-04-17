@@ -15,6 +15,7 @@ namespace GameLibrary
 		Falling,
 		WallFalling,
 		Landing,
+		Hitting,
 		Dying
 	}
 
@@ -43,6 +44,7 @@ namespace GameLibrary
 		internal int JumpedStep;
 		internal int LandedStep;
 		internal int HorizontalCorrectionStep;
+		internal int HittedStep;
 		internal float LastFallingVelocityYFactor;
 		public float LandingVelocityYFactor;
 		internal bool IsDead;
@@ -69,6 +71,7 @@ namespace GameLibrary
 		internal bool DoneLandingFinishConditions =>
 			Physics == PlayerPhysicsState.Landing &&
 			Step >= LandedStep + PhysicsPlayer.LandingSteps;
+		internal bool IsHitting => !IsDead && Step < HittedStep + PhysicsPlayer.HittingSteps;
 
 		public override void Reset()
 		{
@@ -83,6 +86,7 @@ namespace GameLibrary
 			JumpedStep = default(int);
 			LandedStep = default(int);
 			HorizontalCorrectionStep = default(int);
+			HittedStep = default(int) - PhysicsPlayer.HittingSteps;
 			LastFallingVelocityYFactor = default(float);
 			LandingVelocityYFactor = default(float);
 			IsDead = default(bool);
@@ -102,6 +106,7 @@ namespace GameLibrary
 			JumpedStep = playerState.JumpedStep;
 			LandedStep = playerState.LandedStep;
 			HorizontalCorrectionStep = playerState.HorizontalCorrectionStep;
+			HittedStep = playerState.HittedStep;
 			LastFallingVelocityYFactor = playerState.LastFallingVelocityYFactor;
 			LandingVelocityYFactor = playerState.LandingVelocityYFactor;
 			IsDead = playerState.IsDead;
@@ -119,6 +124,7 @@ namespace GameLibrary
 				JumpedStep = from.JumpedStep,
 				LandedStep = from.LandedStep,
 				HorizontalCorrectionStep = from.HorizontalCorrectionStep,
+				HittedStep = from.HittedStep,
 				LastFallingVelocityYFactor = from.LastFallingVelocityYFactor,
 				LandingVelocityYFactor = from.LandingVelocityYFactor,
 				IsDead = from.IsDead
@@ -170,10 +176,25 @@ namespace GameLibrary
 		internal const int JumpingReinforcement = 6;
 		internal const int WallJumpUnalteredSteps = 13;
 		internal const int LandingSteps = 1;
+		internal const int HittingSteps = 16;
+		private const float MinHittingVerticalSpeed = -2.5f;
+		private const float MaxHittingVerticalSpeed = 5f;
 
 		private readonly PlatformSensor groundSensor;
 		private readonly PlatformSensor leftWallSensor;
 		private readonly PlatformSensor rightWallSensor;
+
+		private bool IsInputLeft => !State.IsDead && !State.IsHitting && Input.IsLeftPressed;
+		private bool IsInputRight => !State.IsDead && !State.IsHitting && Input.IsRightPressed;
+		private bool IsInputJumpJust => !State.IsDead && !State.IsHitting && Input.IsJumpJustPressed;
+		private bool IsInputJumpReinforcement =>
+			!State.IsDead &&
+			!State.IsHitting &&
+			Input.IsJumpPressed &&
+			State.InputJumpedStep == Input.JumpPressedStep &&
+			State.DoneJumpingReinforcementConditions;
+		private bool IsInputHit => !State.IsDead && !State.IsHitting && Input.IsHitPressed;
+		private bool IsInputSuicide => Input.IsSuicidePressed;
 
 		protected override Func<float, PlayerState, PlayerState, PlayerState> StateLerpFunc => PlayerState.Lerp;
 
@@ -249,17 +270,19 @@ namespace GameLibrary
 			State.ScopeAngle = groundSensor.IsActive ? groundSensor.GetAverageRadians(Mathf.HalfPi) - Mathf.HalfPi : 0f;
 			var minimalGroundFraction = groundSensor.IsActive ? groundSensor.GetMinimalFraction(1f) : 1f;
 
-			var minVerticalSpeed = State.Physics == PlayerPhysicsState.WallFalling ? MinWallClingedVerticalSpeed : PlayerState.MinVerticalSpeed;
 			var velocityX = Body.LinearVelocity.X;
-			var velocityY = Mathf.Clamp(Body.LinearVelocity.Y, minVerticalSpeed, PlayerState.MaxVerticalSpeed);
+			var velocityY = VelocityYClamp(Body.LinearVelocity.Y);
 
 			// Common
-			if (Input.IsSuicidePressed) {
+			if (IsInputSuicide) {
 				State.IsDead = true;
             }
+			if (IsInputHit) {
+				State.HittedStep = State.Step;
+			}
 
 			// Vertical velocity
-			if (!State.IsDead && Input.IsJumpJustPressed) {
+			if (IsInputJumpJust) {
 				if (State.DoneJumpingConditions) {
 					State.Physics = PlayerPhysicsState.Jumping;
 					velocityY = JumpVerticalSpeed;
@@ -275,7 +298,6 @@ namespace GameLibrary
 					State.HorizontalCorrectionStep = State.JumpedStep + WallJumpUnalteredSteps;
 				}
 			}
-			velocityY = Mathf.Clamp(velocityY, minVerticalSpeed, PlayerState.MaxVerticalSpeed);
 			if (velocityY <= 0) {
 				if (State.DoneFallingConditions) {
 					State.Physics = PlayerPhysicsState.Falling;
@@ -288,7 +310,7 @@ namespace GameLibrary
 				State.LandedStep = State.Step;
 				State.LandingVelocityYFactor = State.LastFallingVelocityYFactor;
 			}
-			if (!State.IsDead && Input.IsJumpPressed && State.InputJumpedStep == Input.JumpPressedStep && State.DoneJumpingReinforcementConditions) {
+			if (IsInputJumpReinforcement) {
 				velocityY = ReinforcementVerticalSpeed;
 			}
 			var requiredGravityResistance = false;
@@ -296,10 +318,11 @@ namespace GameLibrary
 				velocityY = 0f;
 				requiredGravityResistance = true;
 			}
+			velocityY = VelocityYClamp(velocityY);
 			var velocityYFactor = velocityY / (velocityY >= 0 ? PlayerState.MaxVerticalSpeed : -PlayerState.MinVerticalSpeed);
 
 			// Horizontal velocity
-			var inputX = Input.IsLeftPressed != Input.IsRightPressed && !State.IsDead ? (Input.IsLeftPressed ? -1 : 1) : 0;
+			var inputX = IsInputLeft != IsInputRight ? (IsInputLeft ? -1 : 1) : 0;
 			var rotationX = 0f;
 			if (groundSensor.IsActive && inputX != 0) {
 				var forwardScope = groundSensor.ScopeSensors[inputX == -1 ? 0 : 2];
@@ -359,12 +382,28 @@ namespace GameLibrary
 			}
 		}
 
+		private float VelocityYClamp(float value)
+		{
+			if (State.Physics == PlayerPhysicsState.WallFalling) {
+				value = Mathf.Clamp(value, MinWallClingedVerticalSpeed, float.MaxValue);
+			}
+			if (State.IsHitting) {
+				value = Mathf.Clamp(value, MinHittingVerticalSpeed, MaxHittingVerticalSpeed);
+			}
+			return Mathf.Clamp(value, PlayerState.MinVerticalSpeed, PlayerState.MaxVerticalSpeed);
+		}
+
 		public override void Updated(float delta)
 		{
 			base.Updated(delta);
-			
+
 			if (State.IsDead) {
 				State.Animation = PlayerAnimation.Dying;
+				return;
+			}
+
+			if (State.IsHitting) {
+				State.Animation = PlayerAnimation.Hitting;
 				return;
 			}
 
