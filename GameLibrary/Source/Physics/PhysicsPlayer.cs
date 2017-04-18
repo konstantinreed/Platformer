@@ -177,6 +177,7 @@ namespace GameLibrary
 		internal const int WallJumpUnalteredSteps = 13;
 		internal const int LandingSteps = 1;
 		internal const int HittingSteps = 16;
+		private const float MaxAbsHittingHorizontalSpeed = 2.5f;
 		private const float MinHittingVerticalSpeed = -2.5f;
 		private const float MaxHittingVerticalSpeed = 5f;
 
@@ -193,7 +194,7 @@ namespace GameLibrary
 			Input.IsJumpPressed &&
 			State.InputJumpedStep == Input.JumpPressedStep &&
 			State.DoneJumpingReinforcementConditions;
-		private bool IsInputHit => !State.IsDead && !State.IsHitting && Input.IsHitPressed;
+		private bool IsInputHit => !State.IsDead && !State.IsHitting && Input.IsHitJustPressed;
 		private bool IsInputSuicide => Input.IsSuicidePressed;
 
 		protected override Func<float, PlayerState, PlayerState, PlayerState> StateLerpFunc => PlayerState.Lerp;
@@ -270,16 +271,16 @@ namespace GameLibrary
 			State.ScopeAngle = groundSensor.IsActive ? groundSensor.GetAverageRadians(Mathf.HalfPi) - Mathf.HalfPi : 0f;
 			var minimalGroundFraction = groundSensor.IsActive ? groundSensor.GetMinimalFraction(1f) : 1f;
 
-			var velocityX = Body.LinearVelocity.X;
-			var velocityY = VelocityYClamp(Body.LinearVelocity.Y);
-
 			// Common
 			if (IsInputSuicide) {
 				State.IsDead = true;
-            }
+			}
 			if (IsInputHit) {
 				State.HittedStep = State.Step;
 			}
+
+			var velocityX = VelocityXClamp(Body.LinearVelocity.X);
+			var velocityY = VelocityYClamp(Body.LinearVelocity.Y);
 
 			// Vertical velocity
 			if (IsInputJumpJust) {
@@ -380,6 +381,14 @@ namespace GameLibrary
 			if (velocityYFactor <= -0.01f) {
 				State.LastFallingVelocityYFactor = velocityYFactor;
 			}
+		}
+
+		private float VelocityXClamp(float value)
+		{
+			if (State.IsHitting) {
+				value = Mathf.Clamp(value, -MaxAbsHittingHorizontalSpeed, MaxAbsHittingHorizontalSpeed);
+			}
+			return value;
 		}
 
 		private float VelocityYClamp(float value)

@@ -9,11 +9,14 @@ namespace Scripts
 	{
 		private const float FlipTolerance = 0.5f;
 		private const float RotationSmoothing = 0.5f;
+		private const int HittingAnimationsCount = 2;
 
 		private Player player;
 		private Animator animator;
 		private Quaternion initialRotation;
 		private bool isFacingRight = true;
+		private bool wasHitting;
+		private int hitIndex;
 
 		public GameObject AnimatorGameObject;
 		public Transform RotationTransform;
@@ -43,6 +46,11 @@ namespace Scripts
 				(state.LinearVelocity.Y >= 0 ? PlayerState.MaxVerticalSpeed : -PlayerState.MinVerticalSpeed);
 
 			if (animator != null) {
+				if (wasHitting && state.Animation != PlayerAnimation.Hitting) {
+					hitIndex = (hitIndex + 1) % HittingAnimationsCount;
+				}
+				wasHitting = state.Animation == PlayerAnimation.Hitting;
+
 				animator.SetFloat("VelocityX", velocityXFactor);
 				animator.SetFloat("VelocityY", velocityYFactor);
 				animator.SetFloat("Rotation", angle);
@@ -58,6 +66,7 @@ namespace Scripts
 				animator.SetBool("IsLanding",     state.Animation == PlayerAnimation.Landing);
 				animator.SetBool("IsHitting",     state.Animation == PlayerAnimation.Hitting);
 				animator.SetBool("IsDying",       state.Animation == PlayerAnimation.Dying);
+				animator.SetInteger("HittingIndex", hitIndex);
 			}
 		}
 

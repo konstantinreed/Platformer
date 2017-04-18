@@ -5,6 +5,7 @@ namespace GameLibrary
 	public class InputState : IStepState
 	{
 		private const float JumpPressedDurability = 4;
+		private const float HitPressedDurability = 4;
 
 		public int Step { get; set; }
 
@@ -13,9 +14,11 @@ namespace GameLibrary
 		public bool IsJumpPressed;
 		internal int JumpPressedStep;
 		public bool IsHitPressed;
+		internal int HitPressedStep;
 		public bool IsSuicidePressed;
 
 		internal bool IsJumpJustPressed => IsJumpPressed && JumpPressedStep >= Step - JumpPressedDurability;
+		internal bool IsHitJustPressed => IsHitPressed && HitPressedStep >= Step - HitPressedDurability;
 
 		public void Reset()
 		{
@@ -24,6 +27,7 @@ namespace GameLibrary
 			IsJumpPressed = default(bool);
 			JumpPressedStep = default(int);
 			IsHitPressed = default(bool);
+			HitPressedStep = default(int);
 			IsSuicidePressed = default(bool);
 		}
 
@@ -34,6 +38,7 @@ namespace GameLibrary
 			IsJumpPressed = state.IsJumpPressed;
 			JumpPressedStep = state.JumpPressedStep;
 			IsHitPressed = state.IsHitPressed;
+			HitPressedStep = state.HitPressedStep;
 			IsSuicidePressed = state.IsSuicidePressed;
         }
 
@@ -44,6 +49,7 @@ namespace GameLibrary
 			IsJumpPressed = IsJumpPressed || state.IsJumpPressed;
 			JumpPressedStep = Math.Max(JumpPressedStep, state.JumpPressedStep);
 			IsHitPressed = IsHitPressed || state.IsHitPressed;
+			HitPressedStep = Math.Max(HitPressedStep, state.HitPressedStep);
 			IsSuicidePressed = IsSuicidePressed || state.IsSuicidePressed;
 		}
 
@@ -51,9 +57,15 @@ namespace GameLibrary
 		{
 			if (IsJumpPressed && !previousInput.IsJumpPressed) {
 				JumpPressedStep = Step;
-            } else {
+			} else {
 				JumpPressedStep = previousInput.JumpPressedStep;
-            }
+			}
+
+			if (IsHitPressed && !previousInput.IsHitPressed) {
+				HitPressedStep = Step;
+			} else {
+				HitPressedStep = previousInput.HitPressedStep;
+			}
 		}
 
 		internal bool IsDiffersFrom(InputState state)
