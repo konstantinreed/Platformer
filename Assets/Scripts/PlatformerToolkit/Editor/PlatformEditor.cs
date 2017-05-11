@@ -13,6 +13,7 @@ namespace PlatformerToolkit
 		private const int Segment_BeforeFirst = -2;
 		private const int Segment_AfterLast = -3;
 
+		private PlatformBuilder builder = new PlatformBuilder();
 		private Platform platform;
 		private Transform transform;
 		private bool onSceneGUIFirstCall;
@@ -20,7 +21,7 @@ namespace PlatformerToolkit
 		private Vector3 worldMousePos;
 		private Vector2 localMousePos;
 
-		public List<Vector2> Path { get { return platform.Path; } }
+		public List<Platform.PathNode> Path { get { return platform.Path; } }
 
 		private void OnEnable()
 		{
@@ -58,11 +59,11 @@ namespace PlatformerToolkit
 				i = Path.Count - 1;
 				j = 0;
 			}
-			var start = transform.TransformPoint(Path[i]);
+			var start = transform.TransformPoint(Path[i].Pos);
 			var oldColor = Handles.color;
 			Handles.color = Color.white;
 			while (j < Path.Count) {
-				var end = transform.TransformPoint(Path[j]);
+				var end = transform.TransformPoint(Path[j].Pos);
 				Handles.DrawAAPolyLine(6.0f, start, end);
 				start = end;
 				j++;
@@ -78,12 +79,22 @@ namespace PlatformerToolkit
 				case EventType.MouseDown:
 					if (HandleUtility.nearestControl != defControl || ev.button != 0)
 						break;
-					if (nearestSegment == Segment_BeforeFirst)
-						Path.Insert(0, localMousePos);
-					else if (nearestSegment == Segment_AfterLast)
-						Path.Insert(Path.Count, localMousePos);
-					else if (nearestSegment != Segment_None)
-						Path.Insert(nearestSegment + 1, localMousePos);
+					if (nearestSegment != Segment_None) {
+						BeginModify();
+						if (nearestSegment == Segment_BeforeFirst)
+							Path.Insert(0, new Platform.PathNode {
+								Pos = localMousePos
+							});
+						else if (nearestSegment == Segment_AfterLast)
+							Path.Insert(Path.Count, new Platform.PathNode {
+								Pos = localMousePos
+							});
+						else
+							Path.Insert(nearestSegment + 1, new Platform.PathNode {
+								Pos = localMousePos
+							});
+						EndModify();
+					}
 					ev.Use();
 					break;
 				case EventType.Layout:
@@ -95,20 +106,25 @@ namespace PlatformerToolkit
 		private void HandlePoints()
 		{
 			for (var i = 0; i < Path.Count; i++) {
-				var worldPos = transform.TransformPoint(Path[i]);
+				var node = Path[i];
+				var worldPos = transform.TransformPoint(node.Pos);
 				EditorGUI.BeginChangeCheck();
 				worldPos = Handles.Slider2D(
 					worldPos, transform.forward, transform.right, transform.up,
 					HandleUtility.GetHandleSize(worldPos) * 0.05f, Handles.DotHandleCap, 0.0f);
 				if (EditorGUI.EndChangeCheck()) {
-					Path[i] = (Vector2)transform.InverseTransformPoint(worldPos);
+					BeginModify();
+					node.Pos = (Vector2)transform.InverseTransformPoint(worldPos);
+					EndModify();
 				}
 			}
 		}
 
 		private void HandleSegmentDrag()
 		{
-			var center = (Path[nearestSegment] + Path[(nearestSegment + 1) % Path.Count]) * 0.5f;
+			var startNode = Path[nearestSegment];
+			var endNode = Path[(nearestSegment + 1) % Path.Count];
+			var center = (startNode.Pos + endNode.Pos) * 0.5f;
 			var worldCenter = transform.TransformPoint(center);
 			EditorGUI.BeginChangeCheck();
 			worldCenter = Handles.Slider2D(
@@ -117,8 +133,10 @@ namespace PlatformerToolkit
 			if (EditorGUI.EndChangeCheck()) {
 				var newCenter = (Vector2)transform.InverseTransformPoint(worldCenter);
 				var delta = newCenter - center;
-				Path[nearestSegment] += delta;
-				Path[(nearestSegment + 1) % Path.Count] += delta;
+				BeginModify();
+				startNode.Pos += delta;
+				endNode.Pos += delta;
+				EndModify();
 			}
 		}
 
@@ -126,8 +144,8 @@ namespace PlatformerToolkit
 		{
 			var start = Path[nearestSegment];
 			var end = Path[(nearestSegment + 1) % Path.Count];
-			var worldStart = transform.TransformPoint(start);
-			var worldEnd = transform.TransformPoint(end);
+			var worldStart = transform.TransformPoint(start.Pos);
+			var worldEnd = transform.TransformPoint(end.Pos);
 			if (eventType == EventType.Repaint && HandleUtility.nearestControl == id) {
 				var oldColor = Handles.color;
 				var oldZTest = Handles.zTest;
@@ -167,8 +185,8 @@ namespace PlatformerToolkit
 				if (platform.Closed) {
 					nearestSegment = Segment_None;
 				} else {
-					var sqrDistToStart = (localMousePos - Path[0]).sqrMagnitude;
-					var sqrDistToEnd = (localMousePos - Path[Path.Count - 1]).sqrMagnitude;
+					var sqrDistToStart = (localMousePos - Path[0].Pos).sqrMagnitude;
+					var sqrDistToEnd = (localMousePos - Path[Path.Count - 1].Pos).sqrMagnitude;
 					if (sqrDistToStart < sqrDistToEnd)
 						nearestSegment = Segment_BeforeFirst;
 					else
@@ -189,10 +207,10 @@ namespace PlatformerToolkit
 				j = 0;
 			}
 			while (j < Path.Count) {
-				var segmentVec = Path[j] - Path[i];
-				var t = Vector2.Dot(pt - Path[i], segmentVec) / segmentVec.sqrMagnitude;
+				var segmentVec = Path[j].Pos - Path[i].Pos;
+				var t = Vector2.Dot(pt - Path[i].Pos, segmentVec) / segmentVec.sqrMagnitude;
 				t = Mathf.Clamp(t, 0.0f, 1.0f);
-				var nearestPtOnSegment = Path[i] + segmentVec * t;
+				var nearestPtOnSegment = Path[i].Pos + segmentVec * t;
 				var sqrDist = (pt - nearestPtOnSegment).sqrMagnitude;
 				if (sqrDist < minSqrDist) {
 					minSqrDist = sqrDist;
@@ -202,6 +220,21 @@ namespace PlatformerToolkit
 				i = j;
 				j++;
 			}
+		}
+
+		private void BeginModify()
+		{
+			Undo.RecordObject(platform, "Platform Modification");
+		}
+
+		private void EndModify()
+		{
+			Rebuild();
+		}
+
+		private void Rebuild()
+		{
+			builder.Build(platform);
 		}
 	}
 }
