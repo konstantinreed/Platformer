@@ -4,6 +4,8 @@ namespace PlatformerToolkit
 {
 	public static class Utility
 	{
+		public const float ZeroTolerance = 1e-6f;
+
 		public static float Cross(Vector2 v1, Vector2 v2)
 		{
 			return v1.x * v2.y - v1.y * v2.x;

@@ -8,8 +8,9 @@ namespace PlatformerToolkit
 	{
 		public List<PathNode> Path = new List<PathNode>();
 		public bool Closed;
-		public float Thickness = 1.0f;
 		public bool CorrectSharpCorners = true;
+		public int HSubdivs = 1;
+		public int VSubdivs = 1;
 		public PlatformMaterial Material;
 
 		public class PathNode
