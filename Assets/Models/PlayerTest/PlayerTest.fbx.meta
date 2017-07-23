@@ -3,7 +3,7 @@ guid: 3353bab570da6d040aa5eaa864d6af4a
 timeCreated: 1478679637
 licenseType: Free
 ModelImporter:
-  serializedVersion: 19
+  serializedVersion: 21
   fileIDToRecycleName:
     100000: arm_end
     100002: arm_end_2
@@ -42,6 +42,7 @@ ModelImporter:
     100068: shoulder_L_Pole
     100070: shoulder_R
     100072: shoulder_R_Pole
+    100074: Legs
     400000: arm_end
     400002: arm_end_2
     400004: arm_L
@@ -79,6 +80,7 @@ ModelImporter:
     400068: shoulder_L_Pole
     400070: shoulder_R
     400072: shoulder_R_Pole
+    400074: Legs
     4300000: Cube_1
     4300002: Cube_2
     4300004: Cube_3
@@ -130,6 +132,7 @@ ModelImporter:
     animationScaleError: 0.5
     animationWrapMode: 0
     extraExposedTransformPaths: []
+    extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
       name: Run
@@ -1631,7 +1634,10 @@ ModelImporter:
     globalScale: 1
     meshCompression: 0
     addColliders: 0
+    importVisibility: 0
     importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
@@ -1647,6 +1653,7 @@ ModelImporter:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 3
+    normalCalculationMode: 0
   importAnimation: 1
   copyAvatar: 0
   humanDescription:
