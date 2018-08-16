@@ -6,8 +6,6 @@ namespace Scripts
 {
 	public class CameraController : MonoBehaviour
 	{
-		private const float ViewportXTargetMaxInterval = 0.05f;
-
 		private new Camera camera;
 		private PlayerView[] players;
 		private Vector3 velocity = Vector3.zero;

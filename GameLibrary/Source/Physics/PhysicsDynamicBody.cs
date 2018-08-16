@@ -73,7 +73,7 @@ namespace GameLibrary
 
 		public T GetState(float progress)
 		{
-			return StateLerpFunc(progress, States[States.CurrentStep - 1], State);
+			return StateLerpFunc(progress, States.CurrentStep > 0 ? States[States.CurrentStep - 1] : State, State);
 		}
 
 		public void SetPosition(Vector2 value)

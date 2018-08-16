@@ -25,6 +25,7 @@ namespace Scripts
 		public void Start()
 		{
 			player = UnityApplication.Instance.Player;
+			State = player.GetState();
 			animator = AnimatorGameObject != null ? AnimatorGameObject.GetComponent<Animator>() : null;
 			initialRotation = RotationTransform != null ? RotationTransform.rotation : Quaternion.identity;
 			IsFacingRight = true;
@@ -48,10 +49,10 @@ namespace Scripts
 				(State.LinearVelocity.Y >= 0 ? PlayerState.MaxVerticalSpeed : -PlayerState.MinVerticalSpeed);
 
 			if (animator != null) {
-				if (wasHitting && state.Animation != PlayerAnimation.Hitting) {
+				if (wasHitting && State.Animation != PlayerAnimation.Hitting) {
 					hitIndex = (hitIndex + 1) % HittingAnimationsCount;
 				}
-				wasHitting = state.Animation == PlayerAnimation.Hitting;
+				wasHitting = State.Animation == PlayerAnimation.Hitting;
 
 				animator.SetFloat("VelocityX", velocityXFactor);
 				animator.SetFloat("VelocityY", velocityYFactor);
